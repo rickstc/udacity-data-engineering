@@ -1,0 +1,36 @@
+Data Engineering - comprises all engineering and operational tasks required to make data available for the end-user, whether for the purposes of analytics, model building, app development, etc
+
+Data Science Hierarchy of Needs (Bottom Up)
+- Collect
+- Move/Store
+- Explore/Transform
+- Aggregate/Label
+- Learn/Optimize
+
+Data Roles and Skill Sets
+Software Engineers - System Architecture
+Data Engineers - Data Storage and Processing
+Data Analysts - Reporting and Analytics
+Data Scientists & ML Engineers - Machine Learning and Artificial Intelligence
+
+Common Data Engineering Activities
+- Ingest data from a data source
+- Build and maintain a data warehouse
+- Create a data pipeline
+- Create an analytics table for a specific use case
+- Migrate data to the cloud
+- Schedule and automate pipelines
+- Backfill data
+- Debug data quality issues
+- Optimize queries
+- Design a database
+
+Historical Articles:
+https://medium.com/analytics-and-data/on-the-evolution-of-data-engineering-c5e56d273e37
+https://learn.panoply.io/hubfs/Data%20Engineering%20-%20Introduction%20and%20Epochs.pdf
+
+Tools:
+https://www.burtchworks.com/2018/09/10/the-rise-of-data-engineering-common-skills-and-tools/
+https://analyticsindiamag.com/data-engineering-101-top-tools-and-framework-resources/
+https://joviam.com/this-infographic-of-big-data-tools-will-blow-your-mind-infographic/
+https://datafloq.com/big-data-open-source-tools/os-home/
