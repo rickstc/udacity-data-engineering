@@ -53,7 +53,7 @@ In addition to key constraints, attempts should be made to identify maximum fiel
 | Field     | Type    | Comments              |
 | --------- | ------- | --------------------- |
 | song_id   | varchar | pk                    |
-| title     | varchar |                       |
+| title     | varchar | unique                |
 | artist_id | varchar | fk(Artists.artist_id) |
 | year      | int     |                       |
 | duration  | decimal |                       |
@@ -63,7 +63,7 @@ In addition to key constraints, attempts should be made to identify maximum fiel
 | Field     | Type    | Comments |
 | --------- | ------- | -------- |
 | artist_id | varchar | pk       |
-| name      | varchar |          |
+| name      | varchar | unique   |
 | location  | varchar |          |
 | latitude  | int     |          |
 | longitude | int     |          |

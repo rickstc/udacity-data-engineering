@@ -30,4 +30,35 @@ Additional documentation can be found in the `/docs` directory. Additional docum
 
 ## Quickstart
 
-## Core Project Files
+### Install the Dependencies
+
+To run this application locally, the dependencies must be installed (preferably in a virtual environment).
+
+#### Using Pipenv (preferred)
+
+```
+pipenv install
+pipenv shell
+```
+
+#### Using Pip
+
+```
+pip install -r requirements.txt
+```
+
+### Ensure Database Access
+
+The project assumes that there is a postgres database server running on the default port (5432) accessible from `127.0.0.1`. Additionally, the database should have a database named `studentdb`, accessible by a username/password combination of `student/student`.
+
+While Udacity provides a code execution environment, the author prefers local development, and has accomplished this using Docker. Database setup is outside the scope of this project and has not been included in the submission, however, a `docker-compose.yml` file for this specific project is available from the author's GitHub repository here: https://github.com/rickstc/udacity-data-engineering
+
+### Initialize the Database
+
+With the appropriate virtual environment activated (optional if required packages are available globally), run the following command to clean the database and populate the necessary tables:
+`python create_tables.py`.
+
+### Run the ETL Pipeline
+
+Run the ETL Pipeline to parse the source data and populate the database tables by running the following command:
+`python etl.py`
