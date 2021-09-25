@@ -64,7 +64,7 @@ Scale is limited to vertical upgrades
     - Apache HBase (Wide Column Store)
     - Neo4J - Graph Database
 - Basics of Apache Cassandra
-    - Keyspace - Collection of Tables
+    - Keyspace - Collection of Tables (Database)
     - Table - Group of Partitions
     - Rows - A Simgle item
     - Partition

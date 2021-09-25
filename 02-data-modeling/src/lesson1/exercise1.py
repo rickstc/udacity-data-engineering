@@ -1,7 +1,7 @@
 import psycopg2
-from utils import DBUtils
+from utils import PGUtils
 
-utils = DBUtils()
+utils = PGUtils()
 utils.reset_databases()
 
 try:
@@ -36,7 +36,7 @@ except psycopg2.Error as e:
 try:
     # conn = psycopg2.connect(
     #     "host=127.0.0.1 dbname=thedb user=student password=student")
-    conn = DBUtils.connect('song_db')
+    conn = PGUtils.connect('song_db')
 except psycopg2.Error as e:
     print("Error: Could not make connection to the Postgres database")
     print(e)
@@ -93,4 +93,4 @@ while row:
 cur.close()
 conn.close()
 
-DBUtils.reset_databases()
+PGUtils.reset_databases()
