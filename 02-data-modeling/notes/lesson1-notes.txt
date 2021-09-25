@@ -54,3 +54,49 @@ Scale is limited to vertical upgrades
 10. What is PostgreSQL
 - Open source object-relational database system
 - Uses and builds on SQL language
+
+14. NoSQL Databases
+- NoSQL = not only SQL = NonRelational
+- Types:
+    - Apache Cassandra (Partition Row Store)
+    - MongoDB - Document Store
+    - DynamoDB - Key-Value Store
+    - Apache HBase (Wide Column Store)
+    - Neo4J - Graph Database
+- Basics of Apache Cassandra
+    - Keyspace - Collection of Tables
+    - Table - Group of Partitions
+    - Rows - A Simgle item
+    - Partition
+        - Fundamental unit of access
+        - Collection of row(s)
+        - How data is distributed
+    - Primary Key
+        - Primary key is made up of a partition key and clustering columns
+    - Columns
+        - Clustering and Data
+        - Labeled element
+
+15. What is Apache Cassandra?
+- "... provides scalability and high availability without compromising performance. Linear Scalability and proven fault-tolerance on commodity hardware or cloud infrastructrue make it the perfect platform for mission-critical data."
+- Uses its own query language CQL
+
+16. When to Use a NoSQL Database
+- Large amounts of data
+- Need horizonal scalability
+- Need high throughput -- fast reads
+- Need a flexible schema
+- Need high availability
+- Need to be able to store different data type formats
+- Users are distributed -- low latency
+
+17. When Not to Use a NoSql Database
+- Need ACID Transactions
+- Need ability to do JOINS
+- Ability to do aggregations and analytics
+- Have changing business requirements
+- Queries are not available and need to have Flexibility
+- Have a small dataset
+
+** MongoDB now offers Multi-Document ACID Transactions
+https://www.mongodb.com/collateral/mongodb-multi-document-acid-transactions
