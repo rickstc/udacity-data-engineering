@@ -1,12 +1,8 @@
 import psycopg2
 
-connection = psycopg2.connect(
-    host="localhost",
-    dbname="test",
-    user="someuser",
-    password="somepass",
-    port=9000
-)
+from utils import PGUtils
+
+connection = PGUtils.connect()
 connection.set_session(autocommit=True)
 
 cursor = connection.cursor()
