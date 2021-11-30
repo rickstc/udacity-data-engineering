@@ -110,6 +110,15 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    Finds JSON files located at a given path and applies a function to all JSON files found
+
+    Arguments:
+    - cur - Database Cursor
+    - conn - Database Connection
+    - filepath - Directory to begin searching
+    - func - Function to apply to any JSON files located in the directory
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -129,6 +138,9 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    """
+    Main Method, begins processing data
+    """
     conn = psycopg2.connect(
         "host=127.0.0.1 dbname=sparkifydb user=student password=student")
     conn.set_session(autocommit=True)
