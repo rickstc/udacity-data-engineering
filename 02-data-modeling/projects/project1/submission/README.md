@@ -4,7 +4,8 @@
 
 Author: Timothy Ricks
 
-Submission Date: 2021-11-29
+Submission Date: 2021-11-29 (first)
+Submission Date: 2021-12-04 (second)
 
 External Repository: [GitHub](https://github.com/rickstc/udacity-data-engineering)
 
