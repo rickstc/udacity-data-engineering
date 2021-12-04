@@ -14,7 +14,7 @@ songplay_table_create = (
         songplay_id     SERIAL      PRIMARY KEY,
         start_time      TIMESTAMP   NOT NULL,
         user_id         INT         NOT NULL,
-        level           VARCHAR,
+        level           VARCHAR     NOT NULL,
         song_id         VARCHAR     NOT NULL,
         artist_id       VARCHAR     NOT NULL,
         session_id      INT         NOT NULL,
