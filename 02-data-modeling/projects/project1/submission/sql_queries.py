@@ -108,7 +108,17 @@ user_table_insert = (
         %s,
         %s,
         %s
-    ) ON CONFLICT (user_id) DO NOTHING;
+    ) ON CONFLICT (user_id) DO UPDATE SET (
+        first_name,
+        last_name,
+        gender,
+        level
+    ) = (
+        EXCLUDED.first_name,
+        EXCLUDED.last_name,
+        EXCLUDED.gender,
+        EXCLUDED.level
+    );
 	""")
 
 song_table_insert = (
@@ -164,7 +174,7 @@ time_table_insert = (
 		%s,
 		%s,
 		%s
-	);
+	) ON CONFLICT (start_time) DO NOTHING;
 	""")
 
 # FIND SONGS
