@@ -11,13 +11,13 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 songplay_table_create = (
     """
     CREATE TABLE IF NOT EXISTS songplays (
-        songplay_id     VARCHAR     PRIMARY KEY,
-        start_time      TIMESTAMP,
-        user_id         VARCHAR,
+        songplay_id     SERIAL      PRIMARY KEY,
+        start_time      TIMESTAMP   NOT NULL,
+        user_id         VARCHAR     NOT NULL,
         level           VARCHAR,
-        song_id         VARCHAR,
-        artist_id       VARCHAR,
-        session_id      INT,
+        song_id         VARCHAR     NOT NULL,
+        artist_id       VARCHAR     NOT NULL,
+        session_id      INT         NOT NULL,
         location        VARCHAR,
         user_agent      VARCHAR
     );
@@ -27,8 +27,8 @@ user_table_create = (
     """
     CREATE TABLE IF NOT EXISTS users (
         user_id     INT         PRIMARY KEY,
-        first_name  VARCHAR,
-        last_name   VARCHAR,
+        first_name  VARCHAR     NOT NULL,
+        last_name   VARCHAR     NOT NULL,
         gender      VARCHAR,
         level       VARCHAR
     );
@@ -39,7 +39,7 @@ song_table_create = (
     CREATE TABLE IF NOT EXISTS songs (
         song_id     VARCHAR     PRIMARY KEY,
         title       VARCHAR     UNIQUE,
-        artist_id   VARCHAR,
+        artist_id   VARCHAR     NOT NULL,
         year        INT,
         duration    DECIMAL
     );
@@ -49,7 +49,7 @@ artist_table_create = (
     """
     CREATE TABLE IF NOT EXISTS artists (
         artist_id       VARCHAR     PRIMARY KEY,
-        name VARCHAR    UNIQUE,
+        name            VARCHAR     UNIQUE,
         location        VARCHAR,
         latitude        INT,
         longitude       INT
@@ -60,12 +60,12 @@ time_table_create = (
     """
     CREATE TABLE IF NOT EXISTS time (
         start_time      TIMESTAMP       PRIMARY KEY,
-        hour            INT,
-        day             INT,
-        week            INT,
-        month           INT,
-        year            INT,
-        weekday         VARCHAR
+        hour            INT             NOT NULL,
+        day             INT             NOT NULL,
+        week            INT             NOT NULL,
+        month           INT             NOT NULL,
+        year            INT             NOT NULL,
+        weekday         VARCHAR         NOT NULL
     );
     """)
 
@@ -74,7 +74,6 @@ time_table_create = (
 songplay_table_insert = (
     """
 	INSERT INTO songplays (
-        songplay_id,
         start_time,
         user_id,
         level,
@@ -84,7 +83,6 @@ songplay_table_insert = (
         location,
         user_agent
     ) VALUES (
-        %s,
         %s,
         %s,
         %s,
