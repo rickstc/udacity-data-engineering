@@ -30,7 +30,7 @@ user_table_create = (
         first_name  VARCHAR     NOT NULL,
         last_name   VARCHAR     NOT NULL,
         gender      VARCHAR,
-        level       VARCHAR
+        level       VARCHAR     NOT NULL
     );
     """)
 
