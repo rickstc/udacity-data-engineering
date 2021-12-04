@@ -12,7 +12,7 @@ songplay_table_create = (
     "CREATE TABLE IF NOT EXISTS songplays (songplay_id varchar primary key, start_time timestamp, user_id varchar, level varchar, song_id varchar, artist_id varchar, session_id int, location varchar, user_agent varchar)")
 
 user_table_create = (
-    "CREATE TABLE IF NOT EXISTS users (user_id varchar primary key, first_name varchar, last_name varchar, gender varchar, level varchar)")
+    "CREATE TABLE IF NOT EXISTS users (user_id int primary key, first_name varchar, last_name varchar, gender varchar, level varchar)")
 
 song_table_create = (
     "CREATE TABLE IF NOT EXISTS songs (song_id varchar primary key, title varchar UNIQUE, artist_id varchar, year int, duration decimal)")
@@ -21,7 +21,7 @@ artist_table_create = (
     "CREATE TABLE IF NOT EXISTS artists (artist_id varchar primary key, name varchar UNIQUE, location varchar, latitude int, longitude int)")
 
 time_table_create = (
-    "CREATE TABLE IF NOT EXISTS time (start_time timestamp, hour int, day int, week int, month int, year int, weekday varchar)")
+    "CREATE TABLE IF NOT EXISTS time (start_time timestamp primary key, hour int, day int, week int, month int, year int, weekday varchar)")
 
 # INSERT RECORDS
 
