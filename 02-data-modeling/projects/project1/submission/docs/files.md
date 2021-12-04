@@ -12,6 +12,7 @@ This table contains a listing of core project files and a brief description of e
 | README.md        | Provides basic project information including author, quickstart, and links to documentation.                                                                                                                     |
 | sql_queries.py   | This file defines the basic sql queries necessary to perform all necessary interactions with the database, including dropping and creating tables, inserting records into the tables, and querying the database. |
 | test.ipynb       | Jupyter (iPython) Notebook file that selects and displays the first few rows of each database table.                                                                                                             |
+| test.py          | Unit Test to assess the state of the database after the database has been instantiated and the log files have been processed and data inserted into the database.                                                |
 
 Additional documentation is available in the `docs/` directory.
 

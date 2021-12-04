@@ -3,7 +3,6 @@ import glob
 import psycopg2
 import pandas as pd
 from sql_queries import *
-import uuid
 
 
 def process_song_file(cur, filepath):
@@ -94,19 +93,28 @@ def process_log_file(cur, filepath):
             songid, artistid = None, None
 
         # insert songplay record
-        songplay_data = (
-            str(uuid.uuid4()),
-            row.ts,
-            row.userId,
-            row.level,
-            songid,
-            artistid,
-            row.sessionId,
-            row.location,
-            row.userAgent
-        )
+        """
+        Edit: Performing a check for None here and skipping if the data will fail a 'NOT NULL' constraint
+        The student has chosen to supplement the try/except block looking for psycopg2.errors.NotNullViolation
+        with the if check because it seems preferable to ignore bad data prior to sending it to the database
+        """
+        if songid is not None and artistid is not None:
+            try:
+                songplay_data = (
+                    row.ts,
+                    row.userId,
+                    row.level,
+                    songid,
+                    artistid,
+                    row.sessionId,
+                    row.location,
+                    row.userAgent
+                )
 
-        cur.execute(songplay_table_insert, songplay_data)
+                cur.execute(songplay_table_insert, songplay_data)
+            except psycopg2.errors.NotNullViolation as ex:
+                print(
+                    "An attempt to insert a songplay into the songplay table failed due to a null constraint.")
 
 
 def process_data(cur, conn, filepath, func):

@@ -28,13 +28,13 @@ In addition to key constraints, attempts should be made to identify maximum fiel
 
 | Field       | Type      | Comments             |
 | ----------- | --------- | -------------------- |
-| songplay_id | varchar   | pk                   |
-| start_time  | timestamp |                      |
+| songplay_id | serial    | pk                   |
+| start_time  | timestamp | not null             |
 | user_id     | varchar   | fk(Users.user_id)    |
-| level       | varchar   |                      |
+| level       | varchar   | not null             |
 | song_id     | varchar   | fk(Songs.song_id)    |
 | artist_id   | varchar   | fk(Artist.artist_id) |
-| session_id  | int       |                      |
+| session_id  | int       | not null             |
 | location    | varchar   |                      |
 | user_agent  | varchar   |                      |
 
@@ -42,9 +42,9 @@ In addition to key constraints, attempts should be made to identify maximum fiel
 
 | Field      | Type    | Comments |
 | ---------- | ------- | -------- |
-| user_id    | varchar | pk       |
-| first_name | varchar |          |
-| last_name  | varchar |          |
+| user_id    | int     | pk       |
+| first_name | varchar | not null |
+| last_name  | varchar | not null |
 | gender     | varchar |          |
 | level      | varchar |          |
 
@@ -70,14 +70,14 @@ In addition to key constraints, attempts should be made to identify maximum fiel
 
 ## Time
 
-| Field      | Type      |
-| ---------- | --------- |
-| start_time | timestamp |
-| hour       | int       |
-| day        | int       |
-| week       | int       |
-| month      | int       |
-| year       | int       |
-| weekday    | varchar   |
+| Field      | Type      | Comments |
+| ---------- | --------- | -------- |
+| start_time | timestamp | pk       |
+| hour       | int       | not null |
+| day        | int       | not null |
+| week       | int       | not null |
+| month      | int       | not null |
+| year       | int       | not null |
+| weekday    | varchar   | not null |
 
 [<- Return to Overview](../README.md)
