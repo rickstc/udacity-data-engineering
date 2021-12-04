@@ -31,7 +31,7 @@ In addition to key constraints, attempts should be made to identify maximum fiel
 | songplay_id | serial    | pk                   |
 | start_time  | timestamp | not null             |
 | user_id     | varchar   | fk(Users.user_id)    |
-| level       | varchar   |                      |
+| level       | varchar   | not null             |
 | song_id     | varchar   | fk(Songs.song_id)    |
 | artist_id   | varchar   | fk(Artist.artist_id) |
 | session_id  | int       | not null             |
