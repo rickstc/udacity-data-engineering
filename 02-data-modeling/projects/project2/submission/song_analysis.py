@@ -3,7 +3,7 @@ File: song_analysis.py
 Attribution: Mixed
 
 Purpose:
-This file expands on the boilerplate code provided by udacity in the second
+This file expands on the boilerplate code provided by Udacity in the second
 section of the code notebook. That section includes some basic code and prompts,
 intended to be completed by the student to accomplish the fictional organization's
 data analysis goals.
@@ -136,26 +136,20 @@ def create_table(session, table_name, primary_key):
     execute_query(session, create_table_query)
 
 
-def query_one(session):
+def load_data(session, table_name):
     """
     Params:
     - session - The Cassandra Cluster.session object
+    - table_name - The Cassandra table into which data will be loaded
 
-    TO-DO: Query 1:  Give me the artist, song title and song's length in the music app history that was heard during \
-    sessionId = 338, and itemInSession = 4
-
-    The objective of this is to locate the artist, title and length provided a session id and the position in a session
-
-    Therefore, the primary key should contain a partition key of session_id, and a clustering key of item_in_session
+    The purpose of this function is to read the data in from the data source
+    file and insert the data into the appropriate table.
     """
-    # Prepare our primary key and create the table
-    primary_key = "((session_id), item_in_session)"
-    create_table(session, 'session_songs', primary_key)
-
-    # Populate the table
     for line in UdacityUtils.read_datafile():
-        query = """
-        INSERT INTO session_songs (
+        query = f"INSERT INTO {table_name} "
+
+        query = query + """
+        (
             session_id,
             item_in_session,
             user_id,
@@ -184,15 +178,44 @@ def query_one(session):
         )
         execute_query(session, query, params)
 
+
+def query_one(session):
+    """
+    Params:
+    - session - The Cassandra Cluster.session object
+
+    TO-DO: Query 1:  Give me the artist, song title and song's length in the music app history that was heard during
+    sessionId = 338, and itemInSession = 4
+
+    The objective of this is to locate the artist, title and length provided a session id and the position in a session
+
+    Therefore, the primary key should contain a partition key of session_id, and a clustering key of item_in_session
+    """
+
+    # Variables for the desired lookups
+    session_id = 338
+    item_in_session = 4
+
+    # Prepare our primary key and create the table
+    table_name = 'session_songs'
+    primary_key = "((session_id), item_in_session)"
+    create_table(session, table_name, primary_key)
+
+    # Populate the table
+    load_data(session, table_name)
+
     # Execute the query
-    rows = execute_query(session, """
-        SELECT artist_name, song_name, length
-        FROM session_songs
-        WHERE session_id=%s AND item_in_session=%s
-    """, (338, 4))
+    rows = execute_query(
+        session,
+        f"""
+            SELECT artist_name, song_name, length
+            FROM {table_name}
+            WHERE session_id={session_id} AND item_in_session={item_in_session}
+        """
+    )
 
     # Drop table to prepare for next query
-    execute_query(session, "DROP TABLE IF EXISTS session_songs")
+    execute_query(session, f"DROP TABLE IF EXISTS {table_name}")
     return rows
 
 
@@ -211,51 +234,30 @@ def query_two(session):
     user_id and item_in_session
 
     """
+    # Variables for the desired lookups
+    user_id = 10
+    session_id = 182
+
+    table_name = 'user_sessions'
     primary_key = "((session_id), user_id, item_in_session)"
-    create_table(session, 'user_sessions', primary_key)
+    create_table(session, table_name, primary_key)
 
     # Populate the table
-    for line in UdacityUtils.read_datafile():
-        query = """
-        INSERT INTO user_sessions (
-            session_id,
-            item_in_session,
-            user_id,
-            level,
-            first_name,
-            last_name,
-            gender,
-            location,
-            artist_name,
-            song_name,
-            length
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        params = (
-            int(line[8]),
-            int(line[3]),
-            int(line[10]),
-            line[6],
-            line[1],
-            line[4],
-            line[2],
-            line[7],
-            line[0],
-            line[9],
-            float(line[5])
-        )
-        execute_query(session, query, params)
+    load_data(session, table_name)
 
     # Execute the query
-    rows = execute_query(session, """
-        SELECT artist_name, song_name, first_name, last_name
-        FROM user_sessions
-        WHERE session_id=%s AND user_id=%s
-        ORDER BY item_in_session
-    """, (182, 10))
+    rows = execute_query(
+        session,
+        f"""
+            SELECT artist_name, song_name, first_name, last_name
+            FROM {table_name}
+            WHERE session_id={session_id} AND user_id={user_id}
+            ORDER BY item_in_session
+        """
+    )
 
     # Drop table to prepare for next query
-    execute_query(session, "DROP TABLE IF EXISTS user_sessions")
+    execute_query(session, f"DROP TABLE IF EXISTS {table_name}")
     return rows
 
 
@@ -271,53 +273,31 @@ def query_three(session):
     Therefore, the primary key should be a composite containing a partiion key of song_name, with clustering columns
     of first_name and last_name
 
-    While the problem statement did not dictate any ordering, the student chose to order results by last name
+    While the problem statement did not specify any ordering, the student chose to order results by last name
     """
+    # Variables for the desired lookups
+    song_name = "'All Hands Against His Own'"
+
+    table_name = 'song_plays'
     primary_key = "((song_name), last_name, first_name)"
-    create_table(session, 'song_plays', primary_key)
+    create_table(session, table_name, primary_key)
 
     # Populate the table
-    for line in UdacityUtils.read_datafile():
-        query = """
-        INSERT INTO song_plays (
-            session_id,
-            item_in_session,
-            user_id,
-            level,
-            first_name,
-            last_name,
-            gender,
-            location,
-            artist_name,
-            song_name,
-            length
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        params = (
-            int(line[8]),
-            int(line[3]),
-            int(line[10]),
-            line[6],
-            line[1],
-            line[4],
-            line[2],
-            line[7],
-            line[0],
-            line[9],
-            float(line[5])
-        )
-        execute_query(session, query, params)
+    load_data(session, table_name)
 
     # Execute the query
-    rows = execute_query(session, """
-        SELECT last_name, first_name
-        FROM song_plays
-        WHERE song_name=%s
-        ORDER BY last_name
-    """, ("All Hands Against His Own", ))
+    rows = execute_query(
+        session,
+        f"""
+            SELECT last_name, first_name
+            FROM {table_name}
+            WHERE song_name={song_name}
+            ORDER BY last_name
+        """
+    )
 
     # Drop table to prepare for next query
-    execute_query(session, "DROP TABLE IF EXISTS song_plays")
+    execute_query(session, f"DROP TABLE IF EXISTS {table_name}")
     return rows
 
 
@@ -329,10 +309,10 @@ def init():
     # Connect to a session in the cluster
     cluster, session = UdacityUtils.open_db_connection()
 
-    # TO-DO: Create a Keyspace
+    # Create a Keyspace
     keyspace = create_keyspace(session)
 
-    # TO-DO: Set KEYSPACE to the keyspace specified above
+    # Set KEYSPACE to the keyspace specified above
     session.set_keyspace(keyspace)
 
     """
