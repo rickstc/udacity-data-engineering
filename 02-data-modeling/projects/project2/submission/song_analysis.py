@@ -58,6 +58,20 @@ clutter code
 - Each function could become independently testable
 """
 
+CSV_POSITIONS = {
+    'session_id': 8,
+    'item_in_session': 3,
+    'user_id': 10,
+    'level': 6,
+    'first_name': 1,
+    'last_name': 4,
+    'gender': 2,
+    'location': 7,
+    'artist_name': 0,
+    'song_name': 9,
+    'length': 5
+}
+
 
 def create_keyspace(session, keyspace_name=None):
     """
@@ -105,80 +119,6 @@ def execute_query(session, query, params=None):
         return None
 
 
-def create_table(session, table_name, primary_key):
-    """
-    Params:
-    - session - The Cassandra Cluster.session object
-    - primary_key - The primary key that will be used with the table
-
-
-    This function consolidates the logic to create a table, as the column names and types
-    do not change for the data; only the primary key changes for each query
-    """
-
-    create_table_query = f"""
-    CREATE TABLE IF NOT EXISTS {table_name} 
-    (
-        session_id int,
-        item_in_session int,
-        user_id int,
-        level text,
-        first_name text,
-        last_name text,
-        gender text,
-        location text,
-        artist_name text,
-        song_name text,
-        length float,
-        PRIMARY KEY {primary_key}
-    )
-    """
-    execute_query(session, create_table_query)
-
-
-def load_data(session, table_name):
-    """
-    Params:
-    - session - The Cassandra Cluster.session object
-    - table_name - The Cassandra table into which data will be loaded
-
-    The purpose of this function is to read the data in from the data source
-    file and insert the data into the appropriate table.
-    """
-    for line in UdacityUtils.read_datafile():
-        query = f"INSERT INTO {table_name} "
-
-        query = query + """
-        (
-            session_id,
-            item_in_session,
-            user_id,
-            level,
-            first_name,
-            last_name,
-            gender,
-            location,
-            artist_name,
-            song_name,
-            length
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        params = (
-            int(line[8]),
-            int(line[3]),
-            int(line[10]),
-            line[6],
-            line[1],
-            line[4],
-            line[2],
-            line[7],
-            line[0],
-            line[9],
-            float(line[5])
-        )
-        execute_query(session, query, params)
-
-
 def query_one(session):
     """
     Params:
@@ -199,10 +139,42 @@ def query_one(session):
     # Prepare our primary key and create the table
     table_name = 'session_songs'
     primary_key = "((session_id), item_in_session)"
-    create_table(session, table_name, primary_key)
+
+    # Create the table
+    create_table_query = f"""
+    CREATE TABLE IF NOT EXISTS {table_name} 
+    (
+        session_id int,
+        item_in_session int,
+        artist_name text,
+        song_name text,
+        length float,
+        PRIMARY KEY {primary_key}
+    )
+    """
+    execute_query(session, create_table_query)
 
     # Populate the table
-    load_data(session, table_name)
+    for line in UdacityUtils.read_datafile():
+        query = f"INSERT INTO {table_name} "
+
+        query = query + """
+        (
+            session_id,
+            item_in_session,
+            artist_name,
+            song_name,
+            length
+        ) VALUES (%s, %s, %s, %s, %s)
+        """
+        params = (
+            int(line[CSV_POSITIONS['session_id']]),
+            int(line[CSV_POSITIONS['item_in_session']]),
+            line[CSV_POSITIONS['artist_name']],
+            line[CSV_POSITIONS['song_name']],
+            float(line[CSV_POSITIONS['length']])
+        )
+        execute_query(session, query, params)
 
     # Execute the query
     rows = execute_query(
@@ -230,8 +202,8 @@ def query_two(session):
     The objective of this is to locate the artist, song, and the user's first and last name given a user id and session id
     These results are to be sorted by the item_in_session
 
-    Therefore, the primary key should be defined as a composite key with a partion key of session_id and clustering keys of
-    user_id and item_in_session
+    Therefore, the primary key should be defined as a composite partion key of session_id and user_id and a 
+    clustering key of item_in_session
 
     """
     # Variables for the desired lookups
@@ -239,11 +211,48 @@ def query_two(session):
     session_id = 182
 
     table_name = 'user_sessions'
-    primary_key = "((session_id), user_id, item_in_session)"
-    create_table(session, table_name, primary_key)
+    primary_key = "((session_id, user_id), item_in_session)"
+    # Create the table
+    create_table_query = f"""
+    CREATE TABLE IF NOT EXISTS {table_name} 
+    (
+        session_id int,
+        user_id int,
+        item_in_session int,
+        artist_name text,
+        song_name text,
+        first_name text,
+        last_name text,
+        PRIMARY KEY {primary_key}
+    )
+    """
+    execute_query(session, create_table_query)
 
     # Populate the table
-    load_data(session, table_name)
+    for line in UdacityUtils.read_datafile():
+        query = f"INSERT INTO {table_name} "
+
+        query = query + """
+        (
+            session_id,
+            user_id,
+            item_in_session,
+            artist_name,
+            song_name,
+            first_name,
+            last_name
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        params = (
+            int(line[CSV_POSITIONS['session_id']]),
+            int(line[CSV_POSITIONS['user_id']]),
+            int(line[CSV_POSITIONS['item_in_session']]),
+            line[CSV_POSITIONS['artist_name']],
+            line[CSV_POSITIONS['song_name']],
+            line[CSV_POSITIONS['first_name']],
+            line[CSV_POSITIONS['last_name']]
+        )
+        execute_query(session, query, params)
 
     # Execute the query
     rows = execute_query(
@@ -270,20 +279,48 @@ def query_three(session):
 
     The objective of this is to locate the first and last name of users who listened a given song
 
-    Therefore, the primary key should be a composite containing a partiion key of song_name, with clustering columns
-    of first_name and last_name
+    Therefore, the primary key should be a composite containing a partiion key of song_name, with a clustering column of user_id
 
-    While the problem statement did not specify any ordering, the student chose to order results by last name
+    While the problem statement did not specify any ordering, the student chose to order results by user id, to ensure consistent testing
     """
     # Variables for the desired lookups
     song_name = "'All Hands Against His Own'"
 
     table_name = 'song_plays'
-    primary_key = "((song_name), last_name, first_name)"
-    create_table(session, table_name, primary_key)
+    primary_key = "((song_name), user_id)"
+
+    # Create the table
+    create_table_query = f"""
+    CREATE TABLE IF NOT EXISTS {table_name} 
+    (
+        song_name text,
+        user_id int,
+        first_name text,
+        last_name text,
+        PRIMARY KEY {primary_key}
+    )
+    """
+    execute_query(session, create_table_query)
 
     # Populate the table
-    load_data(session, table_name)
+    for line in UdacityUtils.read_datafile():
+        query = f"INSERT INTO {table_name} "
+
+        query = query + """
+        (
+            song_name,
+            user_id,
+            first_name,
+            last_name
+        ) VALUES (%s, %s, %s, %s)
+        """
+        params = (
+            line[CSV_POSITIONS['song_name']],
+            int(line[CSV_POSITIONS['user_id']]),
+            line[CSV_POSITIONS['first_name']],
+            line[CSV_POSITIONS['last_name']]
+        )
+        execute_query(session, query, params)
 
     # Execute the query
     rows = execute_query(
@@ -292,7 +329,7 @@ def query_three(session):
             SELECT last_name, first_name
             FROM {table_name}
             WHERE song_name={song_name}
-            ORDER BY last_name
+            ORDER BY user_id
         """
     )
 

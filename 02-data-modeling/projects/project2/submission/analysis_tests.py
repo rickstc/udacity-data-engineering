@@ -73,20 +73,21 @@ class SongAnalysisProjectTests(unittest.TestCase):
     def test_query_three(self):
         """
         Expected Results:
-        Row(last_name='Johnson', first_name='Sara')
-        Row(last_name='Levine', first_name='Tegan')
         Row(last_name='Lynch', first_name='Jacqueline')
+        Row(last_name='Levine', first_name='Tegan')
+        Row(last_name='Johnson', first_name='Sara')
         """
 
         results = [{
-            "last_name": "Johnson",
-            "first_name": "Sara"
-        }, {
+            "last_name": "Lynch",
+            "first_name": "Jacqueline"
+        },
+            {
             "last_name": "Levine",
             "first_name": "Tegan"
         }, {
-            "last_name": "Lynch",
-            "first_name": "Jacqueline"
+            "last_name": "Johnson",
+            "first_name": "Sara"
         }]
         rows = query_three(self.session)
         num_results = 0
