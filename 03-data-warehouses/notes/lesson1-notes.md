@@ -152,3 +152,24 @@ Application:
 - Each such combination will potentially go through all the facts table (suboptimal)
 - The GROUP BY CUBE (x, x, x) will make ONE pass through the facts table and will aggregate all possible combinations of groupings, of length 0, 1, 2, 3, etc.
 - Saving/Materializing the output of the CUBE operation and using it is usually enough to answer all forthcoming aggregations from business users without having to process the whole facts table again
+
+## Data Warehouse Technologies
+
+- Data is available...
+  - In an understandable & performant dimensional model
+  - With Conformed Dimensions or separate Data Marts
+  - For users to report and visualize
+    - By interacting directly with the model
+    - Or in most cases, through a BI application
+
+OLAP Cubes Technology
+
+- Approach 1: Pre-aggregate the OLAP cubes and saves them on a special purpose non-relational database (MOLAP)
+- Approach 2: Compute the OLAP cubes on the fly from the existing relational databases where the dimensional model resides (ROLAP)
+
+Column format in ROLAP
+
+- Use a postgresql with a columnar table extension
+- Load a dataset in a normal table
+- Load the same dataset in a columnar table
+- Compare the performance of the fact-aggregating query performance in both tables
