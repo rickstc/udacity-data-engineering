@@ -134,14 +134,47 @@ ETL out of Redshift
   - Naturally used by BI apps
 - However, we may need to extract data out of Redshift to pre-aggregated OLAP cubes
 
-## Redshift Cluster Quick Launcher
+## Optimizing Table Design
 
-## Exercise 1: Launch Redshift Cluster
+- When a table is partitioned and distributed across slices in different machines, this is done blindly
+- If we have insight into frequent access patterns, we can choose from one of two strategies:
+  - Distributing Style
+  - Sorting Key
 
-## Problems with the Quick Launcher
+## Distribution Style: Even
 
-## Infrastructure as Code on AWS
+- Round-Robin over all slices to achieve load-balancing
+- Good if a table won't be joined
 
-## Enabling Programmatic Access to IaC
+Joins on tables distributed evenly are very inefficient
 
-## Demo: Infrastructure as Code
+## Distribution Style: All
+
+- Small tables could be replicated on all slices to speed up joins
+- Used frequently for dimension tables
+- Also known as "Broadcasting"
+
+Fact tables could be distributed EVENly, while dimension tables could be replicated, for example
+
+## Distribution Style: Auto
+
+- Leave decision to Redshift
+- "Small Enough" tables are distributed with an ALL strategy
+- Large tables are distributed with EVEN strategy
+
+## Distribution Style: Key
+
+- Rows having similar values are placed in the same slice
+
+For example, facts distributed by particular dimension grouped into the same slice
+
+- This can lead to a skewed distribution if some values of the dist key are more frequent than others
+- However, very useful when a dimension table is too big to be distributed with ALL strategy. In that case, we distribute both the fact table and dimension table using the same dist key
+- If two tables are distributed on the joining keys, redshift collocates the rows from both tables on the same slices
+
+## Sorting Key
+
+- One can define its columns as a sort key
+- Upon loading, rows are sorted before distribution to slices
+- Minimizes the query time since each node already has contiguous ranges of rows based on the sorting key
+- Useful for columns that are used frequently in sorting like the date dimension and its corresponding foreign key in the fact table
