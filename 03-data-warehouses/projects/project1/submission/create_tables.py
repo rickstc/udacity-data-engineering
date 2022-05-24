@@ -1,31 +1,53 @@
-import configparser
-import psycopg2
+"""
+File: create_tables.py
+Attribution: Udacity
+Background:
+This file contains the essentials necessary to make a connection to
+the Redshift database and drop any tables if necessary, and create 
+new tables based on the queries in sql_queries.py
+
+Because the student abstracted connection logic into the Redshift class,
+this file became very simple; only providing two methods: drop_tables
+and create_tables.
+
+The student elected to replicate the functionality provided here
+directly on the Redshift class to drop/create tables.
+"""
+
+from redshift import Redshift
 from sql_queries import create_table_queries, drop_table_queries
 
 
-def drop_tables(cur, conn):
+def drop_tables(redshift):
+    """
+    Deprecated
+    Please see drop_tables in redshift.py
+    """
     for query in drop_table_queries:
-        cur.execute(query)
-        conn.commit()
+        redshift.execute(query)
 
 
-def create_tables(cur, conn):
+def create_tables(redshift):
+    """
+    Deprecated
+    Please see create_tables in redshift.py
+    """
     for query in create_table_queries:
-        cur.execute(query)
-        conn.commit()
+        redshift.execute(query)
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('dwh.cfg')
+    """
+    Deprecated
+    This file is no longer necessary because this functionality is provided
+    by redshift.py, and can be called as necessary from etl.py
+    """
+    redshift = Redshift()
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
-    cur = conn.cursor()
+    drop_tables(redshift)
+    create_tables(redshift)
 
-    drop_tables(cur, conn)
-    create_tables(cur, conn)
-
-    conn.close()
+    redshift.close()
 
 
 if __name__ == "__main__":

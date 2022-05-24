@@ -1,5 +1,4 @@
-import configparser
-import psycopg2
+from redshift import Redshift
 from sql_queries import copy_table_queries, insert_table_queries
 
 
@@ -16,16 +15,19 @@ def insert_tables(cur, conn):
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('dwh.cfg')
+    """"""
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
-    cur = conn.cursor()
-    
-    load_staging_tables(cur, conn)
-    insert_tables(cur, conn)
+    # Connection to the database has been moved to redshift.py
+    redshift = Redshift()
 
-    conn.close()
+    # This drops and recreates tables to ensure we're operating on a fresh db
+    redshift.create_tables()
+
+    load_staging_tables(redshift.cur, redshift.conn)
+    insert_tables(redshift.cur, redshift.conn)
+
+    # Close our connection to Redshift
+    redshift.close()
 
 
 if __name__ == "__main__":
