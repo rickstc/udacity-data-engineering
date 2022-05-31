@@ -26,6 +26,13 @@ def main():
     load_staging_tables(redshift.cur, redshift.conn)
     insert_tables(redshift.cur, redshift.conn)
 
+    # Populate Staging Tables
+
+    # Populate Analytics Tables from Staging Tables
+
+    # Run analytic queries
+    # TODO: The project didn't define any
+
     # Close our connection to Redshift
     redshift.close()
 

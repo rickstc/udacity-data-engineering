@@ -113,11 +113,21 @@ CREATE TABLE IF NOT EXISTS time (
 
 # STAGING TABLES
 
-staging_events_copy = ("""
-""").format()
+staging_events_copy = (f"""
+COPY staging_events
+FROM '{config['S3']['LOG_DATA']}'
+iam_role {config['IAM_ROLE']['ARN']}
+region 'us-west-2'
+FORMAT AS json '{config['S3']['LOG_JSONPATH']}'
+""")
 
-staging_songs_copy = ("""
-""").format()
+staging_songs_copy = (f"""
+COPY staging_songs
+FROM '{config['S3']['SONG_DATA']}'
+iam_role {config['IAM_ROLE']['ARN']}
+region 'us-west-2'
+FORMAT AS json 'auto'
+""")
 
 # FINAL TABLES
 
@@ -230,3 +240,5 @@ drop_table_queries = [staging_events_table_drop, staging_songs_table_drop,
 copy_table_queries = [staging_events_copy, staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert,
                         song_table_insert, artist_table_insert, time_table_insert]
+
+analytical_queries = []
