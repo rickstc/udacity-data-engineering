@@ -24,6 +24,11 @@ def main():
     redshift.create_tables()
 
     load_staging_tables(redshift.cur, redshift.conn)
+    # Check the number of records in the staging tables
+    print(
+        f'Number of Events: {redshift.execute("SELECT COUNT(*) FROM staging_events;")}')
+    print(
+        f'Number of Songs: {redshift.execute("SELECT COUNT(*) FROM staging_songs;")}')
     insert_tables(redshift.cur, redshift.conn)
 
     # Populate Staging Tables

@@ -89,7 +89,10 @@ class AWSHelper:
             ],
             AvailabilityZone=self.cluster.get('az'),
             PubliclyAccessible=True,
-            Encrypted=False
+            Encrypted=False,
+            IamRoles=[
+                self.cluster.get('iam_role')
+            ]
         )
         print(json.dumps(response, indent=2, default=json_encode_dt))
         return response
@@ -147,4 +150,6 @@ if __name__ == '__main__':
 
     else:
         status = aws.get_cluster_status()
+        print(
+            f"The cluster's status is: {status['Clusters'][0]['ClusterStatus']}")
         aws.write_endpoint_to_config(status)

@@ -106,5 +106,8 @@ venv.bak/
 # Visual Studio
 .vs
 
+# Editors
+.vscode
+
 # AWS
 udacity_creds.csv
