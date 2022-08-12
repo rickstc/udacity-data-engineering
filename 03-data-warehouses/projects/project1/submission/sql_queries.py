@@ -116,20 +116,16 @@ CREATE TABLE IF NOT EXISTS time (
 
 staging_events_copy = ("""
 COPY staging_events
-FROM {}
-iam_role {}
+FROM 's3://udacity-dend/log_data'
+iam_role 'arn:aws:iam::702908485663:role/myRedshiftRole'
 region 'us-west-2'
-FORMAT AS json {};
-""").format(
-    config['S3']['LOG_DATA'],
-    config['IAM_ROLE']['ARN'],
-    config['S3']['LOG_JSONPATH']
-)
+FORMAT AS json 's3://udacity-dend/log_json_path.json'
+""")
 
-staging_songs_copy = ("""
+staging_songs_copy = (f"""
 COPY staging_songs
-FROM {}
-iam_role {}
+FROM 's3://udacity-dend/song_data'
+iam_role 'arn:aws:iam::702908485663:role/myRedshiftRole'
 region 'us-west-2'
 FORMAT AS json 'auto';
 """).format(
