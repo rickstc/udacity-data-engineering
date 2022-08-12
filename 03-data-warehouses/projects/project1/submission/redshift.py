@@ -153,7 +153,7 @@ class Redshift:
                     dbname=cluster.get('db_name'),
                     user=cluster.get('db_user'),
                     password=cluster.get('db_password'),
-                    port=cluster.get('port')
+                    port=cluster.get('db_port')
                 )
                 return conn
             except Exception as ex:

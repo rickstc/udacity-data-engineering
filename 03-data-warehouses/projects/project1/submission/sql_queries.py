@@ -57,13 +57,13 @@ CREATE TABLE IF NOT EXISTS staging_songs (
 
 songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplays (
-    songplay_id     SERIAL      PRIMARY KEY,
-    start_time      TIMESTAMP   NOT NULL,
-    user_id         INT         NOT NULL,
-    level           VARCHAR     NOT NULL,
-    song_id         VARCHAR     NOT NULL,
-    artist_id       VARCHAR     NOT NULL,
-    session_id      INT         NOT NULL,
+    songplay_id     INTEGER IDENTITY (1, 1)     PRIMARY KEY,
+    start_time      TIMESTAMP                   NOT NULL,
+    user_id         INT                         NOT NULL,
+    level           VARCHAR                     NOT NULL,
+    song_id         VARCHAR                     NOT NULL,
+    artist_id       VARCHAR                     NOT NULL,
+    session_id      INT                         NOT NULL,
     location        VARCHAR,
     user_agent      VARCHAR
 );
@@ -115,16 +115,16 @@ CREATE TABLE IF NOT EXISTS time (
 
 staging_events_copy = (f"""
 COPY staging_events
-FROM '{config['S3']['LOG_DATA']}'
-iam_role {config['IAM_ROLE']['ARN']}
+FROM 's3://udacity-dend/log_data'
+iam_role 'arn:aws:iam::702908485663:role/myRedshiftRole'
 region 'us-west-2'
-FORMAT AS json '{config['S3']['LOG_JSONPATH']}'
+FORMAT AS json 's3://udacity-dend/log_json_path.json'
 """)
 
 staging_songs_copy = (f"""
 COPY staging_songs
-FROM '{config['S3']['SONG_DATA']}'
-iam_role {config['IAM_ROLE']['ARN']}
+FROM 's3://udacity-dend/song_data'
+iam_role 'arn:aws:iam::702908485663:role/myRedshiftRole'
 region 'us-west-2'
 FORMAT AS json 'auto'
 """)

@@ -89,7 +89,10 @@ class AWSHelper:
             ],
             AvailabilityZone=self.cluster.get('az'),
             PubliclyAccessible=True,
-            Encrypted=False
+            Encrypted=False,
+            IamRoles=[
+                self.cluster.get('iam_role')
+            ]
         )
         print(json.dumps(response, indent=2, default=json_encode_dt))
         return response
