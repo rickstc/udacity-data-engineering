@@ -116,22 +116,17 @@ CREATE TABLE IF NOT EXISTS time (
 
 staging_events_copy = ("""
 COPY staging_events
-FROM 's3://udacity-dend/log_data'
-iam_role 'arn:aws:iam::702908485663:role/myRedshiftRole'
-region 'us-west-2'
-FORMAT AS json 's3://udacity-dend/log_json_path.json'
-""")
+FROM {}
+iam_role {}
+FORMAT AS json {};
+""").format(config['S3']['LOG_DATA'], config['IAM_ROLE']['ARN'], config['S3']['LOG_JSONPATH'])
 
-staging_songs_copy = (f"""
+staging_songs_copy = ("""
 COPY staging_songs
-FROM 's3://udacity-dend/song_data'
-iam_role 'arn:aws:iam::702908485663:role/myRedshiftRole'
-region 'us-west-2'
+FROM {}
+iam_role {}
 FORMAT AS json 'auto';
-""").format(
-    config['S3']['SONG_DATA'],
-    config['IAM_ROLE']['ARN']
-)
+""").format(config['S3']['SONG_DATA'], config['IAM_ROLE']['ARN'])
 
 # FINAL TABLES
 
@@ -241,8 +236,7 @@ create_table_queries = [staging_events_table_create, staging_songs_table_create,
                         songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop,
                       songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
-# copy_table_queries = [staging_events_copy, staging_songs_copy]
-copy_table_queries = [staging_songs_copy, ]
+copy_table_queries = [staging_events_copy, staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert,
                         song_table_insert, artist_table_insert, time_table_insert]
 
