@@ -21,19 +21,30 @@ def main():
     redshift = Redshift()
 
     # This drops and recreates tables to ensure we're operating on a fresh db
-    redshift.create_tables()
+    # redshift.create_tables()
 
-    load_staging_tables(redshift.cur, redshift.conn)
-    # Check the number of records in the staging tables
-    print(
-        f'Number of Events: {redshift.execute("SELECT COUNT(*) FROM staging_events;")}')
-    print(
-        f'Number of Songs: {redshift.execute("SELECT COUNT(*) FROM staging_songs;")}')
-    insert_tables(redshift.cur, redshift.conn)
+    # load_staging_tables(redshift.cur, redshift.conn)
+    # # Check the number of records in the staging tables
+    # print(
+    #     f'Number of Events: {redshift.execute("SELECT COUNT(*) FROM staging_events;", fetch=True)}')
 
-    # Populate Staging Tables
+    # print(
+    #     f'Number of Songs: {redshift.execute("SELECT COUNT(*) FROM staging_songs;", fetch=True)}')
+
+    # # Populate Staging Tables
+    # insert_tables(redshift.cur, redshift.conn)
 
     # Populate Analytics Tables from Staging Tables
+    print(
+        f'Number of SongPlays: {redshift.execute("SELECT COUNT(*) FROM songplays;", fetch=True)}')
+    print(
+        f'Number of Songs: {redshift.execute("SELECT COUNT(*) FROM songs;", fetch=True)}')
+    print(
+        f'Number of Users: {redshift.execute("SELECT COUNT(*) FROM users;", fetch=True)}')
+    print(
+        f'Number of Artists: {redshift.execute("SELECT COUNT(*) FROM artists;", fetch=True)}')
+    print(
+        f'Number of Time: {redshift.execute("SELECT COUNT(*) FROM time;", fetch=True)}')
 
     # Run analytic queries
     # TODO: The project didn't define any

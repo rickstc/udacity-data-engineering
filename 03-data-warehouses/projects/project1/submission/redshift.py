@@ -64,7 +64,7 @@ class Redshift:
         """
         self.conn.close()
 
-    def execute(self, query, data=None):
+    def execute(self, query, data=None, fetch=False):
         """
         Executes a given query
 
@@ -76,11 +76,16 @@ class Redshift:
         the logging of exception information
         """
         try:
+            results = None
             if data is None:
                 self.cur.execute(query)
             else:
                 self.cur.execute(query, data)
+
+            if fetch:
+                results = self.cur.fetchall()
             self.conn.commit()
+            return results
         except:
             print("Query execution failed. Please see 'error.log' for more information.")
             logging.exception(f'Query execution failed: \n {query} \n')

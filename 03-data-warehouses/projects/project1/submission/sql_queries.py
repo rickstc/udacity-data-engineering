@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS staging_songs
 
 songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplays (
-    songplay_id     INTEGER     PRIMARY KEY,
+    songplay_id     INTEGER     IDENTITY(0,1) SORTKEY,
     start_time      TIMESTAMP   NOT NULL,
     user_id         INTEGER     NOT NULL,
     level           VARCHAR     NOT NULL,
@@ -117,117 +117,75 @@ CREATE TABLE IF NOT EXISTS time (
 staging_events_copy = ("""
 COPY staging_events
 FROM {}
+region 'us-west-2'
 iam_role {}
+compupdate off statupdate off
+timeformat as 'epochmillisecs'
 FORMAT AS json {};
 """).format(config['S3']['LOG_DATA'], config['IAM_ROLE']['ARN'], config['S3']['LOG_JSONPATH'])
 
 staging_songs_copy = ("""
 COPY staging_songs
 FROM {}
+region 'us-west-2'
 iam_role {}
+compupdate off statupdate off
 FORMAT AS json 'auto';
 """).format(config['S3']['SONG_DATA'], config['IAM_ROLE']['ARN'])
 
 # FINAL TABLES
 
 songplay_table_insert = ("""
-INSERT INTO songplays (
-    start_time,
-    user_id,
-    level,
-    song_id,
-    artist_id,
-    session_id,
-    location,
-    user_agent
-) VALUES (
-    %s,
-    %s,
-    %s,
-    %s,
-    %s,
-    %s,
-    %s,
-    %s
-);
+INSERT INTO songplays (START_TIME, USER_ID, LEVEL, SONG_ID, ARTIST_ID, SESSION_ID, LOCATION, USER_AGENT)
+SELECT DISTINCT
+       TIMESTAMP 'epoch' + (se.ts / 1000) * INTERVAL '1 second' as start_time,
+                se.userId,
+                se.level,
+                ss.song_id,
+                ss.artist_id,
+                se.sessionId,
+                se.location,
+                se.userAgent
+FROM staging_songs ss
+INNER JOIN staging_events se
+ON (ss.title = se.song AND se.artist = ss.artist_name)
+AND se.page = 'NextSong';
 """)
 
 user_table_insert = ("""
-INSERT INTO users (
-    user_id,
-    first_name,
-    last_name,
-    gender,
-    level
-) VALUES (
-    %s,
-    %s,
-    %s,
-    %s,
-    %s
-) ON CONFLICT (user_id) DO UPDATE SET (
-    first_name,
-    last_name,
-    gender,
-    level
-) = (
-    EXCLUDED.first_name,
-    EXCLUDED.last_name,
-    EXCLUDED.gender,
-    EXCLUDED.level
-);
+INSERT INTO users
+SELECT DISTINCT userId, firstName, lastName, gender, level
+FROM staging_events
+WHERE userId IS NOT NULL
+AND page = 'NextSong';
 """)
 
 song_table_insert = ("""
-INSERT INTO songs (
-    song_id,
-    title,
-    artist_id,
-    year,
-    duration
-) VALUES (
-    %s,
-    %s,
-    %s,
-    %s,
-    %s
-) ON CONFLICT (song_id) DO NOTHING;
+INSERT INTO songs
+SELECT
+    DISTINCT song_id, title, artist_id, year, duration
+FROM staging_songs
+WHERE song_id IS NOT NULL;
 """)
 
 artist_table_insert = ("""
-INSERT INTO artists (
-    artist_id,
-    name,
-    location,
-    latitude,
-    longitude
-) VALUES (
-    %s,
-    %s,
-    %s,
-    %s,
-    %s
-) ON CONFLICT (artist_id) DO NOTHING;
+INSERT INTO artists
+SELECT
+    DISTINCT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
+FROM staging_songs;
 """)
 
 time_table_insert = ("""
-INSERT INTO time (
-    start_time,
-    hour,
-    day,
-    week,
-    month,
-    year,
-    weekday
-) VALUES (
-    %s,
-    %s,
-    %s,
-    %s,
-    %s,
-    %s,
-    %s
-) ON CONFLICT (start_time) DO NOTHING;
+insert into time
+SELECT DISTINCT
+       TIMESTAMP 'epoch' + (ts/1000) * INTERVAL '1 second' as start_time,
+       EXTRACT(HOUR FROM start_time) AS hour,
+       EXTRACT(DAY FROM start_time) AS day,
+       EXTRACT(WEEKS FROM start_time) AS week,
+       EXTRACT(MONTH FROM start_time) AS month,
+       EXTRACT(YEAR FROM start_time) AS year,
+       to_char(start_time, 'Day') AS weekday
+FROM staging_events;
 """)
 
 # QUERY LISTS
