@@ -6,6 +6,7 @@ This file contains the necessary code to setup and tear down a Redshift Cluster.
 While not officially part of the project, the student wanted a testable way to
 ensure a consistent environment while minimizing costs.
 """
+import configparser
 
 import boto3
 import os
@@ -63,35 +64,35 @@ class AWSHelper:
             os.path.dirname(
                 os.path.abspath(__file__)
             ),
-            'config.json'
+            'dwh.cfg'
         )
         if not os.path.exists(self.config_fp):
             raise Exception(
-                "A config.json in the root of this project is missing")
+                "A dwh.cfg in the root of this project is missing")
 
-        with open(self.config_fp, 'r') as config_file:
-            config = json.load(config_file)
+        config = configparser.ConfigParser()
+        config.read('dwh.cfg')
 
-        self.config = config.get('production')
-        self.cluster = self.config.get('cluster')
+        self.config = config
+        self.cluster = config['CLUSTER']
 
     def create_cluster(self):
         """ Creates a Redshift Cluster """
         response = self.redshift.create_cluster(
-            DBName=self.cluster.get('db_name'),
-            ClusterIdentifier=self.cluster.get('cluster_identifier'),
+            DBName=self.cluster['DB_NAME'],
+            ClusterIdentifier=self.cluster['IDENTIFIER'],
             ClusterType='single-node',
             NodeType='dc2.large',
-            MasterUsername=self.cluster.get('db_user'),
-            MasterUserPassword=self.cluster.get('db_password'),
+            MasterUsername=self.cluster['DB_USER'],
+            MasterUserPassword=self.cluster['DB_PASSWORD'],
             VpcSecurityGroupIds=[
-                self.cluster.get('sg_id')
+                self.cluster['SG_ID']
             ],
-            AvailabilityZone=self.cluster.get('az'),
+            AvailabilityZone=self.cluster['AZ'],
             PubliclyAccessible=True,
             Encrypted=False,
             IamRoles=[
-                self.cluster.get('iam_role')
+                self.config['IAM_ROLE']['ARN']
             ]
         )
         print(json.dumps(response, indent=2, default=json_encode_dt))
@@ -100,7 +101,7 @@ class AWSHelper:
     def delete_cluster(self):
         """ Removes the Redshift Cluster """
         response = self.redshift.delete_cluster(
-            ClusterIdentifier=self.cluster.get('cluster_identifier'),
+            ClusterIdentifier=self.cluster['IDENTIFIER'],
             SkipFinalClusterSnapshot=True
         )
         print(json.dumps(response, indent=2, default=json_encode_dt))
@@ -108,7 +109,7 @@ class AWSHelper:
 
     def get_cluster_status(self):
         response = self.redshift.describe_clusters(
-            ClusterIdentifier=self.cluster.get('cluster_identifier')
+            ClusterIdentifier=self.cluster['IDENTIFIER']
         )
         return response
 
@@ -120,7 +121,7 @@ class AWSHelper:
                 config = json.load(config_file)
 
             with open(self.config_fp, 'w') as config_file:
-                config['production']['cluster']['host'] = cluster_status['Clusters'][0]['Endpoint']['Address']
+                config['CLUSTER']['HOST'] = cluster_status['Clusters'][0]['Endpoint']['Address']
                 config_file.write(json.dumps(config, indent=2))
         else:
             print("Cluster is not available")

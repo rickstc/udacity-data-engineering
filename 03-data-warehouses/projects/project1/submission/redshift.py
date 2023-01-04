@@ -4,14 +4,7 @@ Attribution: Mixed
 Background:
 The code provided by Udacity contained the logic necessary to load
 configuration from a config file and make a database connection
-based on the configuration information. However, the student
-extended this functionality by allowing the configuration information
-to be loaded from a JSON file as a fallback if the configuration file
-failed.
-
-The student did this so as to hide sensitive configuration information
-while also committing the base configuration file so that others could
-use it to make a connection using their own information.
+based on the configuration information.
 
 Because this connection information was used in at least two places (
 etl.py and create_tables.py), the student elected to abstract the logic
@@ -23,7 +16,6 @@ to its own class for the following reasons:
 
 import configparser
 import psycopg2
-import json
 import os
 import logging
 import sql_queries
@@ -111,56 +103,24 @@ class Redshift:
     @staticmethod
     def _connect():
         try:
+
             config = configparser.ConfigParser()
             config.read('dwh.cfg')
 
-            conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(
-                *config['CLUSTER'].values()))
+            cluster = config['CLUSTER']
+            print(f"HOST: {cluster['HOST']}")
+            # The student prefers the keyword argument connection method over
+            # the string connection method because it is more explicit
+            cluster = {}
+            conn = psycopg2.connect(
+                host=cluster.get('HOST'),
+                dbname=cluster.get('DB_NAME'),
+                user=cluster.get('DB_USER'),
+                password=cluster.get('DB_PASSWORD'),
+                port=cluster.get('DB_PORT')
+            )
             return conn
         except Exception as ex:
-            try:
-                if not os.path.exists('config.json'):
-                    logging.exception(
-                        'Unable to connect to the cluster using credentials in dwh.cfg.')
-                    logging.debug(
-                        "You must either configure the 'dwg.cfg' file, or provide a 'config.json' file")
-                    return None
-                with open('config.json', 'r') as config_file:
-                    config = json.load(config_file)
-
-                """
-                The student's json configuration file allows for different execution environments
-                due to its structure, which is as follows:
-                {
-                    "local": {
-                        "cluster": {
-                            ... connection properties ...
-                        }
-                    },
-                    "production": {
-                        "cluster": {
-                            ... connection properties ...
-                        }
-                    }
-                }
-
-                By setting the 'STACK' environment variable, the student can connect
-                to either a local development environment or the production Redshift
-                environment hosted within AWS.
-                """
-                stack = os.environ.get('STACK', 'local')
-                cluster = config[stack].get('cluster')
-
-                # The student prefers the keyword argument connection method over
-                # the string connection method because it is more explicit
-                conn = psycopg2.connect(
-                    host=cluster.get('host'),
-                    dbname=cluster.get('db_name'),
-                    user=cluster.get('db_user'),
-                    password=cluster.get('db_password'),
-                    port=cluster.get('db_port')
-                )
-                return conn
-            except Exception as ex:
-                logging.exception(
-                    "Unable to connect to the cluster using credentials in config.json.")
+            logging.exception(
+                'Unable to connect to the cluster using credentials in dwh.cfg.')
+            return None
