@@ -14,6 +14,7 @@ import json
 from botocore.config import Config
 import sys
 import datetime
+from botocore.errorfactory import ClientError
 
 
 def json_encode_dt(obj):
@@ -27,38 +28,17 @@ class AWSHelper:
 
         self.redshift = boto3.client(
             'redshift',
-            config=self.aws_config,
-            aws_access_key_id=self.key,
-            aws_secret_access_key=self.secret
+            region_name=self.config['CLUSTER']['REGION']
         )
 
     def _load_credentials(self):
         """
-        Loads AWS Credentials from ./credentials.json
-        While not ordinarily necessary; the student has several
-        different credentials on this machine for other projects.
-        Therefore, by loading credentials from a file in this directory,
-        the student can be explicit about which set of credentials and which account
-        to use for this project.
+        Reads configuration from the config file and sets the following properties
+        on the instance
+        - self.aws_config
+        - self.config
+        - self.cluster - shortcut to self.config['CLUSTER]
         """
-        credential_fp = os.path.join(
-            os.path.dirname(
-                os.path.abspath(__file__)
-            ),
-            'credentials.json'
-        )
-        if not os.path.exists(credential_fp):
-            raise Exception(
-                "A credentials.json in the root of this project is missing")
-
-        with open(credential_fp, 'r') as credential_file:
-            credentials = json.load(credential_file)
-
-        self.aws_config = Config(
-            region_name=credentials.get('region')
-        )
-        self.key = credentials.get("key")
-        self.secret = credentials.get("secret")
 
         self.config_fp = os.path.join(
             os.path.dirname(
@@ -88,7 +68,6 @@ class AWSHelper:
             VpcSecurityGroupIds=[
                 self.cluster['SG_ID']
             ],
-            AvailabilityZone=self.cluster['AZ'],
             PubliclyAccessible=True,
             Encrypted=False,
             IamRoles=[
@@ -113,19 +92,6 @@ class AWSHelper:
         )
         return response
 
-    def write_endpoint_to_config(self, cluster_status=None):
-        if cluster_status is None:
-            cluster_status = self.get_cluster_status()
-        if cluster_status['Clusters'][0]['ClusterStatus'] == 'available':
-            with open(self.config_fp, 'r') as config_file:
-                config = json.load(config_file)
-
-            with open(self.config_fp, 'w') as config_file:
-                config['CLUSTER']['HOST'] = cluster_status['Clusters'][0]['Endpoint']['Address']
-                config_file.write(json.dumps(config, indent=2))
-        else:
-            print("Cluster is not available")
-
 
 if __name__ == '__main__':
     """
@@ -134,7 +100,7 @@ if __name__ == '__main__':
     System Arguments:
     start - this will create the cluster
     stop - this will delete the cluster
-    None - the default case, this will get the status of the cluster and write it to the configuration file
+    None - the default case, this will get the status of the cluster
 
     Example Usage:
     - python iac.py start
@@ -153,4 +119,3 @@ if __name__ == '__main__':
         status = aws.get_cluster_status()
         print(
             f"The cluster's status is: {status['Clusters'][0]['ClusterStatus']}")
-        aws.write_endpoint_to_config(status)

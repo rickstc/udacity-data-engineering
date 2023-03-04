@@ -1,3 +1,13 @@
+"""
+File: sql_queries.py
+Attribution: Mixed
+Background:
+The boilerplate for this file was provided by Udacity for the student
+to complete. The purpose of this file is to define the queries necessary
+to load staging tables from log files and then analytics tables from the staging
+tables. The student also defined some basic analytical queries. Each query is defined and then
+queries are grouped into lists to be executed in the etl.py file.
+"""
 import configparser
 
 
@@ -188,6 +198,45 @@ SELECT DISTINCT
 FROM staging_events;
 """)
 
+# Analytical Queries - Provided by Student
+top_artists_by_playcount = ("""
+    SELECT a.name, COUNT(songplay_id) AS plays
+    FROM artists a
+    JOIN songplays sp
+    ON a.artist_id = sp.artist_id
+    GROUP BY a.name
+    ORDER BY plays DESC
+    LIMIT 10
+""")
+
+top_free_songs = ("""
+    SELECT s.title, COUNT(songplay_id) AS plays
+    FROM songplays sp
+    JOIN songs s
+    ON sp.song_id = s.song_id
+    WHERE level='free'
+    GROUP BY s.title
+    ORDER BY plays DESC
+    LIMIT 10
+""")
+
+songplays_by_gender = ("""
+    SELECT u.gender, COUNT(songplay_id) as plays
+    FROM songplays sp
+    JOIN users u
+    ON u.user_id = sp.user_id
+    GROUP BY u.gender
+""")
+
+songplays_by_weekday = ("""
+    SELECT t.weekday, COUNT(songplay_id) as plays
+    FROM songplays sp
+    JOIN time t
+    ON t.start_time = sp.start_time
+    GROUP BY t.weekday
+    ORDER BY plays DESC
+""")
+
 # QUERY LISTS
 
 create_table_queries = [staging_events_table_create, staging_songs_table_create,
@@ -198,4 +247,5 @@ copy_table_queries = [staging_events_copy, staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert,
                         song_table_insert, artist_table_insert, time_table_insert]
 
-analytical_queries = []
+analytical_queries = [top_artists_by_playcount,
+                      top_free_songs, songplays_by_gender, songplays_by_weekday]

@@ -7,7 +7,7 @@ configuration from a config file and make a database connection
 based on the configuration information.
 
 Because this connection information was used in at least two places (
-etl.py and create_tables.py), the student elected to abstract the logic
+etl.py and create_tables.py], the student elected to abstract the logic
 to its own class for the following reasons:
 1. Reduced code duplication due to the reuse of connections
 2. Reduced code complexity in main methods
@@ -16,7 +16,6 @@ to its own class for the following reasons:
 
 import configparser
 import psycopg2
-import os
 import logging
 import sql_queries
 
@@ -63,6 +62,7 @@ class Redshift:
         Params:
         - query - The query to execute
         - data (optional) - The data to pass in with the query
+        - fetch (optional) - Whether to use the 'fetchall' method defined on the cursor
 
         This is essentially a wrapper around psycopg2's cursor.execute to provide
         the logging of exception information
@@ -108,16 +108,14 @@ class Redshift:
             config.read('dwh.cfg')
 
             cluster = config['CLUSTER']
-            print(f"HOST: {cluster['HOST']}")
             # The student prefers the keyword argument connection method over
             # the string connection method because it is more explicit
-            cluster = {}
             conn = psycopg2.connect(
-                host=cluster.get('HOST'),
-                dbname=cluster.get('DB_NAME'),
-                user=cluster.get('DB_USER'),
-                password=cluster.get('DB_PASSWORD'),
-                port=cluster.get('DB_PORT')
+                host=cluster['HOST'],
+                dbname=cluster['DB_NAME'],
+                user=cluster['DB_USER'],
+                password=cluster['DB_PASSWORD'],
+                port=cluster['DB_PORT']
             )
             return conn
         except Exception as ex:
