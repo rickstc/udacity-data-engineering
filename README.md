@@ -10,4 +10,4 @@ This repository is a place for me (Tim) to keep documents and source code pertai
 
 - [Project 1: Data Modeling w/ Postgres](01-dm-pg/submission/)
 - [Project 2: Data Modeling w/ Apache Cassandra](02-dm-cass/submission/)
-= [Project 3: Data Warehouse](03-dwh/submission/)
+- [Project 3: Data Warehouse](03-dwh/submission/)
