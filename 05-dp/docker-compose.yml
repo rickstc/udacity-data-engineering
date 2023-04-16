@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+  pg:
+    build: docker/postgres
+    restart: always
+    environment:
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: student
+      POSTGRES_DB: studentdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - redshift_data:/var/lib/postgresql/data
+
+
+volumes:
+  redshift_data:
