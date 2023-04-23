@@ -3,6 +3,7 @@ import os
 import traceback
 import json
 
+
 def pg_connect():
     """ Connect to the Postgres Database """
     host = os.environ.get('POSTGRES_HOST', '127.0.0.1')
@@ -12,10 +13,10 @@ def pg_connect():
 
     try:
         connection = psycopg2.connect(
-                dbname=database,
-                host=host,
-                user=user,
-                password=password,
+            dbname=database,
+            host=host,
+            user=user,
+            password=password,
         )
         connection.set_session(autocommit=True)
 
@@ -26,6 +27,7 @@ def pg_connect():
 
     return connection, connection.cursor()
 
+
 def get_data_files(directory):
     """ Returns a set containing the file paths of any json files found in the directory, recursively """
     file_paths = set()
@@ -34,6 +36,7 @@ def get_data_files(directory):
             if filename.endswith('.json'):
                 file_paths.add(os.path.join(dirpath, filename))
     return file_paths
+
 
 def parse_data_files(data_files):
     """
@@ -52,6 +55,7 @@ def parse_data_files(data_files):
             for line in lf.readlines():
                 entries.append(json.loads(line))
     return entries
+
 
 def load_log_entries(cursor, log_entries):
     for entry in log_entries:
@@ -156,17 +160,21 @@ def load_song_entries(cursor, song_entries):
     print(f"Number of staging_songs: {num_songs}")
     assert num_songs > 0
 
+
 def init_db():
     """ Populates the Redshift database with the Log and Song Datasets """
     connection, cursor = pg_connect()
 
+    cursor.execute("DELETE FROM staging_events;")
+    cursor.execute("DELETE FROM staging_songs;")
+
     # Import Log Data
-    log_files = get_data_files('./log_data')
+    log_files = get_data_files('./udacity_dend/log_data')
     log_entries = parse_data_files(log_files)
     load_log_entries(cursor, log_entries)
 
     # Import Song Data
-    song_files = get_data_files('./song_data')
+    song_files = get_data_files('./udacity_dend/song_data')
     song_entries = parse_data_files(song_files)
     load_song_entries(cursor, song_entries)
 

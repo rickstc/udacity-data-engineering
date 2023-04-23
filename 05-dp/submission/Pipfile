@@ -5,9 +5,10 @@ name = "pypi"
 
 [packages]
 psycopg2-binary = "*"
-apache-airflow = {extras = ["celery"], version = "*"}
+apache-airflow = {extras = ["aws"], version = "*"}
 
 [dev-packages]
+autopep8 = "*"
 
 [requires]
 python_version = "3.10"
