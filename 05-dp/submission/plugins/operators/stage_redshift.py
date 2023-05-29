@@ -18,23 +18,24 @@ class StageToRedshiftOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # redshift_conn_id=your-connection-name
-                 redshift_conn_id='redshift',
-                 aws_conn_id='aws_credentials',
+                 conn_id='redshift',
+                 aws_creds='aws_credentials',
                  table_name='staging_events',
                  s3_bucket='',
                  s3_key='',
                  reload=False,
                  *args, **kwargs):
-
-        super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
-        self.aws_hook = AwsHook(aws_conn_id)
-        self.redshift_hook = PostgresHook(postgres_conn_id=redshift_conn_id)
+        """
+        kwargs:
+        - conn_id (string) - The postgres/redshift connection id
+        - aws_creds (string) - The credential to use when instantiating the AWS Hook
+        - table_name (string) - The name of the table
+        - s3_bucket (string) - The s3 bucket where the staging data is stored
+        - s3_key (string) - The path on the s3 bucket where the staging data is stored
+        - reload (bool) - Whether to delete records before running the query
+        """
+        self.aws_hook = AwsHook(aws_creds)
+        self.redshift_hook = PostgresHook(postgres_conn_id=conn_id)
         self.table = table_name
         self.bucket = s3_bucket
         self.key = s3_key
@@ -42,7 +43,7 @@ class StageToRedshiftOperator(BaseOperator):
 
     def has_data(self):
         """
-
+        This checks whether the table has any records in it
         """
         first_record = self.redshift_hook.get_first(
             f'SELECT * FROM {self.table} LIMIT 1;')
@@ -50,6 +51,14 @@ class StageToRedshiftOperator(BaseOperator):
         return len(first_record) > 0
 
     def execute(self, context):
+        """
+        This loads the data from S3 to Redshift, with some caveats
+        If the 'reload' keyword argument is passed in, the data will be loaded
+        regardless. However, if reload is false, and the tables already have data
+        this process will be skipped.
+
+        This speeds up the pipeline considerably while testing and debugging.
+        """
 
         if not self.reload:
             self.log.info("Reload was false, checking if table has data")
@@ -65,7 +74,7 @@ class StageToRedshiftOperator(BaseOperator):
 
         credentials = self.aws_hook.get_credentials()
 
-        formatted_sql = self.sql_query.format(
+        formatted_sql = self.copy_sql.format(
             self.table,
             f"s3://{self.bucket}/{self.key}",
             credentials.access_key,

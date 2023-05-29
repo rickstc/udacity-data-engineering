@@ -9,15 +9,30 @@ class LoadFactOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # conn_id = your-connection-name
+                 query='',
+                 conn_id='',
+                 table_name='',
+                 reload=True,
                  *args, **kwargs):
 
         super(LoadFactOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
+        """
+        kwargs:
+        - query (string) - The query to execute
+        - conn_id (string) - The connection id
+        - table_name (string) - The name of the table
+        - reload (bool) - Whether to delete records before running the query
+        """
+        self.query = query
+        self.redshift_hook = PostgresHook(postgres_conn_id=conn_id)
+        self.table_name = table_name
+        self.reload = reload
 
     def execute(self, context):
-        self.log.info('LoadFactOperator not implemented yet')
+        if self.reload is True:
+            self.log.info(f"DELETING FROM TABLE: {self.table_name}")
+            self.redshift_hook.run(f"DELETE FROM {self.table_name};")
+
+        self.log.info(f"Loading the fact table {self.table_name}")
+
+        self.redshift_hook.run(self.query)

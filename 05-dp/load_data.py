@@ -2,6 +2,12 @@ import psycopg2
 import os
 import traceback
 import json
+import datetime
+
+"""
+This helper file allowed the student to load data into a local postgres instance (because the COPY FROM S3
+syntax is unique to redshift, and the student wanted to first test the airflow pipeline locally).
+"""
 
 
 def pg_connect():
@@ -63,6 +69,7 @@ def load_log_entries(cursor, log_entries):
         # cursor execution attempts
         if entry.get('artist', None) == None:
             continue
+
         try:
             cursor.execute(
                 """

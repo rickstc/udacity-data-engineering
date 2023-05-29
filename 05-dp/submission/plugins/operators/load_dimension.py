@@ -10,30 +10,30 @@ class LoadDimensionOperator(BaseOperator):
     @apply_defaults
     def __init__(
             self,
-            append=False,
-            table='',
             query='',
-            connection_id='',
+            conn_id='',
+            table_name='',
+            reload=False,
             *args,
             **kwargs
     ):
         """
         kwargs:
-            - append (bool) - Whether to load the table using append or to
-             delete and load the data. Default False.
-            - table (string) - The name of the table to operate on
-            - query (string) - The query to execute
-            - connection_id (string) - The connection id
+        - query (string) - The query to execute
+        - conn_id (string) - The connection id
+        - table_name (string) - The name of the table
+        - reload (bool) - Whether to delete records before running the query
         """
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
-        self.append = append
-        self.table = table
         self.query = query
-        self.conn_id = connection_id
+        self.redshift_hook = PostgresHook(postgres_conn_id=conn_id)
+        self.table_name = table_name
+        self.reload = reload
 
     def execute(self, context):
-        hook = PostgresHook(postgres_conn_id=self.conn_id)
-        if not self.append:
-            # Remove the data - append is not true
-            hook.run(f'DELETE FROM {self.table}')
-        hook.run(self.sql_query)
+        if self.reload is True:
+            self.log.info(f"Deleting records in table: {self.table_name}")
+            self.redshift_hook.run(f"DELETE FROM {self.table_name}")
+
+        self.log.info(f"Loading the dimension table {self.table_name}")
+        self.redshift_hook.run(self.query)
