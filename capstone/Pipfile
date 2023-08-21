@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 django = "*"
 httpx = "*"
+pandas = "*"
+psycopg2-binary = "*"
+sqlalchemy = "*"
+djangorestframework = "*"
 
 [dev-packages]
 

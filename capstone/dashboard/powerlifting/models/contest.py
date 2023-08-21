@@ -6,19 +6,18 @@ class Contest(models.Model):
     """
     Represents a Powerlifting Meet (Contest)
 
-    Fields:
-    - ID
-    - Event
-    - Equipment
+    TODO: Fill in
     """
 
     id = models.BigAutoField(primary_key=True)
-    name = models.CharField(blank=False, null=False, max_length=128)
-    federation = models.CharField(max_length=64, blank=False, null=False)
-    parent_federation = models.CharField(
-        max_length=64, blank=True, null=False, default=""
+    name = models.CharField(max_length=256)
+    federation = models.CharField(
+        max_length=64,
     )
-    date = models.DateField(blank=False, null=False)
+    parent_federation = models.CharField(max_length=64, blank=True, default="")
+    date = models.DateField()
     location = models.ForeignKey(
-        "powerlifting.MeetLocation", blank=False, null=False, related_name="contests"
+        "powerlifting.ContestLocation",
+        related_name="contests",
+        on_delete=models.CASCADE,
     )

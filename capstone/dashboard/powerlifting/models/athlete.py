@@ -37,13 +37,9 @@ class Athlete(models.Model):
 
     # Fields
     id = models.BigAutoField(primary_key=True)
-    name = models.CharField(blank=False, null=False, max_length=128)
-    deduplication_number = models.PositiveSmallIntegerField(
-        blank=False, null=False, default=0
-    )
+    name = models.CharField(max_length=128)
+    deduplication_number = models.PositiveSmallIntegerField(default=0)
     gender = models.CharField(
-        blank=False,
-        null=False,
         max_length=1,
         choices=GenderChoices.choices,
         default=GenderChoices.MX,
