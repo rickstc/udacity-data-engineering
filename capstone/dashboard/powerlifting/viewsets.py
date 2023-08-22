@@ -25,3 +25,8 @@ class ContestViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         "date",
         "location",
     ]
+
+
+class ContestResultViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    queryset = models.ContestResult.objects.all()
+    serializer_class = serializers.ContestResultSerializer

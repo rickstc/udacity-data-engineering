@@ -30,74 +30,104 @@ def load_table(table_name):
     return df
 
 
+def lookup_contest_id(row, lookup):
+    key = f"{row['name']}.{row['date']}"
+    return lookup[key]
+
+
 def handle_contest_results(df, athletes, contests):
     # Rename ids to support foreign keys
     athletes = athletes.rename(columns={"id": "athlete_id"})
     contests = contests.rename(columns={"id": "contest_id"})
-    # contests = contests.drop(["federation, parent_federation", "location_id"], axis=1)
-    # print(athletes)
-    print(contests)
-    # Rename Contests
-    df = df.rename(columns={"MeetName": "name", "Date": "date"})
 
-    print("pre Merge:")
-    print(df)
+    """
+    I spent hours trying to merge the df data frame with the contests data frame but I
+    kept getting contest_id = NaN for all records. I decided to, instead, go with the 
+    less elegant but still pretty quick python dictionary to act as a hash map, which
+    still has pretty decent speed. Compute power is cheap, developer time is not.
+
+    df = df.rename(columns={"MeetName": "name", "Date": "date"})
     # Merge Contests
     df = df.merge(contests, on=["name", "date"], how="left")
+    
+    """
+    contest_id_lookup = {}
+    for index, row in contests.iterrows():
+        contest_id_lookup[f"{row['name']}.{row['date']}"] = row["contest_id"]
 
-    print("post_merge")
+    df = df.rename(columns={"MeetName": "name", "Date": "date"})
+    df["contest_id"] = df.apply(lookup_contest_id, axis=1, lookup=contest_id_lookup)
+    df = df.drop(["name", "date"], axis=1)
+
+    # Rename for athletes
+    df = df.rename(columns={"Name": "name"})
+    df[["name", "deduplication_number"]] = df.name.str.split(" #", expand=True)
+    df.deduplication_number.fillna(value=0, inplace=True)
+
+    # Merge Athletes
+    df = df.merge(athletes, on=["name", "deduplication_number"], how="left")
+
+    # Drop Merge Fields
+    df = df.drop(["name", "deduplication_number", "gender"], axis=1)
+
+    # Rename contest fields
+    df = df.rename(
+        columns={
+            "Event": "event",
+            "Equipment": "equipment",
+            "Division": "division",
+            "Age": "age",
+            "AgeClass": "age_class",
+            "BirthYearClass": "birth_year_class",
+            "BodyweightKg": "bodyweight",
+            "WeightClassKg": "weight_class",
+            "Best3SquatKg": "squat",
+            "Best3BenchKg": "bench_press",
+            "Best3DeadliftKg": "deadlift",
+            "Place": "place",
+            "TotalKg": "meet_total",
+            "Dots": "dots",
+            "Tested": "drug_tested",
+        }
+    )
+
+    # Normalize Event
+    df["event"].replace("SBD", "FP", inplace=True)
+    df["event"].replace("BD", "BD", inplace=True)
+    df["event"].replace("SD", "SD", inplace=True)
+    df["event"].replace("SB", "SB", inplace=True)
+    df["event"].replace("S", "SQ", inplace=True)
+    df["event"].replace("B", "BP", inplace=True)
+    df["event"].replace("D", "DL", inplace=True)
+
+    # Normalize Equipment
+    df["equipment"].replace("Raw", "R", inplace=True)
+    df["equipment"].replace("Wraps", "W", inplace=True)
+    df["equipment"].replace("Single-ply", "S", inplace=True)
+    df["equipment"].replace("Multi-ply", "M", inplace=True)
+    df["equipment"].replace("Unlimited", "U", inplace=True)
+    df["equipment"].replace("Straps", "T", inplace=True)
+
+    print("Pre:")
     print(df)
 
-    # # Rename for athletes
-    # df = df.rename(columns={"Name": "name"})
-    # df[["name", "deduplication_number"]] = df.name.str.split(" #", expand=True)
-    # df.deduplication_number.fillna(value=0, inplace=True)
+    # Remove any results without a numeric 'place' - they were either disqualified,
+    # no shows, guest lifters, etc.
+    df["place"] = pd.to_numeric(df["place"], errors="coerce")
+    df = df.dropna(subset=["place"])
 
-    # # Merge Athletes
-    # df = df.merge(athletes, on=["name", "deduplication_number"], how="left")
+    # Weight class field includes + symbol representing anything over the weight.
+    df["weight_class"] = pd.to_numeric(df["weight_class"], errors="coerce")
 
-    # # Drop Merge Fields
-    # df = df.drop(["name", "deduplication_number", "gender"], axis=1)
+    df["drug_tested"].replace("Yes", "True", inplace=True)
+    df["drug_tested"].replace("No", "False", inplace=True)
+    df["drug_tested"].fillna(value="False", inplace=True)
 
-    # # Rename contest fields
-    # df = df.rename(
-    #     columns={
-    #         "Event": "event",
-    #         "Equipment": "equipment",
-    #         "Division": "division",
-    #         "Age": "age",
-    #         "AgeClass": "age_class",
-    #         "BirthYearClass": "birth_year_class",
-    #         "BodyweightKg": "bodyweight",
-    #         "WeightClassKg": "weight_class",
-    #         "Best3SquatKg": "squat",
-    #         "Best3BenchKg": "bench",
-    #         "Best3DeadliftKg": "deadlift",
-    #         "Place": "place",
-    #         "TotalKg": "meet_total",
-    #         "Dots": "dots",
-    #         "Tested": "drug_tested",
-    #     }
-    # )
+    print("Post:")
+    print(df)
 
-    # # Normalize Event
-    # df["event"].replace("SBD", "FP", inplace=True)
-    # df["event"].replace("BD", "BD", inplace=True)
-    # df["event"].replace("SD", "SD", inplace=True)
-    # df["event"].replace("SB", "SB", inplace=True)
-    # df["event"].replace("S", "SQ", inplace=True)
-    # df["event"].replace("B", "BP", inplace=True)
-    # df["event"].replace("D", "DL", inplace=True)
-
-    # # Normalize Equipment
-    # df["equipment"].replace("Raw", "R", inplace=True)
-    # df["equipment"].replace("Wraps", "W", inplace=True)
-    # df["equipment"].replace("Single-ply", "S", inplace=True)
-    # df["equipment"].replace("Multi-ply", "M", inplace=True)
-    # df["equipment"].replace("Unlimited", "U", inplace=True)
-    # df["equipment"].replace("Straps", "T", inplace=True)
-
-    # print(df)
+    # Update database
+    insert_frame(df, "powerlifting_contestresult")
 
 
 def handle_contests(df, locations_df):
@@ -263,5 +293,14 @@ def start():
     handle_contest_results(pd.concat(contest_result_frames), athletes, contests)
 
 
+def test():
+    df1 = [
+        ["name", "date"],
+        ["Open Tournament", "2019-05-11"],
+        ["World Open Championships", "2016-11-14"],
+    ]
+
+
 if __name__ == "__main__":
     start()
+    # test()
