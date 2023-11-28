@@ -10,6 +10,7 @@ pandas = "*"
 psycopg2-binary = "*"
 sqlalchemy = "*"
 djangorestframework = "*"
+django-filter = "*"
 
 [dev-packages]
 

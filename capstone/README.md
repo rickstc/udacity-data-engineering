@@ -2,7 +2,7 @@
 
 # Project Introduction and Scope
 <!-- TODO: Introduce the project -->
-The world of competitive powerlifting is filled with atheletes doing their very best to control and account for every variable in order to perform at their very best. In this project, I will build an ETL pipeline that loads historical weather data and powerlifting competition results into a dashboard that will allow the user to analyze any potential impacts that weather at the competition venue may have on the athlete's performance.
+The world of competitive powerlifting is filled with atheletes doing their very best to control and account for every variable in order to perform at their very best. In this project, I will build an ETL pipeline that loads geographic elevation data and powerlifting competition results into a dashboard that will allow the user to analyze any potential impacts that altitude at the competition venue may have on the athlete's performance.
 
 ## Data Sources
 
@@ -10,17 +10,19 @@ The world of competitive powerlifting is filled with atheletes doing their very 
 
 OpenPowerlifting maintains a data service that aggregates lift data from powerlifting competitions and provides a downloadable CSV file with results from powerlifting meets all over the world. Additionally, OpenPowerlifting maintains good documentation about their data here: [Open Powerlifting Data Documentation](https://openpowerlifting.gitlab.io/opl-csv/bulk-csv-docs.html). As of 8/19/2023, this CSV contains 2,960,122 records, which satisfies the requirements for at least one million records.
 
-### Weather Dataset
+### Elevation Dataset
 
-The weather data used in this project is coming from The Global Historical Climatology Network - Daily (GHCN-Daily), courtesy of the National Centers for Environment Information, a US agency managed by the National Oceanic and Atmospheric Administration (NOAA). This data is organized into multiple CSV files. The data directory provides a folder for each year starting with 1901. Within each folder for a given year, there is a CSV file per weather station. Within each CSV file, there is a line for each hour of each day. Therefore, a single year's worth of data could contain as many as 306,600,000 (35,000 stations * 365 days * 24 hours/day) records. Documentation for this data set can be found at the [GHCN-Daily Dataset Overview Page](https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html).
+The weather data used in this project is coming from The Global Historical Climatology Network - Daily (GHCN-Daily), courtesy of the National Centers for Environment Information, a US agency managed by the National Oceanic and Atmospheric Administration (NOAA). This data is organized into multiple CSV files. The data directory provides a folder for each year starting with 1901. Within each folder for a given year, there is a CSV file per weather station. Within each CSV file, there is a line for each hour of each day. Therefore, a single year's worth of data could contain as many as 306,600,000 (35,000 stations *365 days* 24 hours/day) records. Documentation for this data set can be found at the [GHCN-Daily Dataset Overview Page](https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html).
 
 ## Data Dashboard
+
 I will be building an ETL pipeline that loads data into a Postgres database, a REST API that will expose the data, and a visual dashboard that consumes the API that can be used to explore and search the data.
 
 ### ETL Pipeline
 <!-- TODO: Information on the pipeline -->
 
 ### REST API and Visual Dashboard
+
 I will be leveraging [Django](https://www.djangoproject.com/) and [Django REST Framework](https://www.django-rest-framework.org/) to build the API and dashboard. Django is python web framework that provides an ORM (Object Relational Mapper) that makes working with objects in a database easy. Django REST Framework is also a python web framework that provides tools for building REST APIs, as well as a "Browsable API" built using Twitter Bootstrap that allows users to view and search data using HTML.
 
 # Explore and Access the Data
@@ -63,7 +65,6 @@ Include a description of how you would approach the problem differently under th
     If the database needed to be accessed by 100+ people.
 -->
 
-
 <!-- Rubric
 
 Scoping the Project
@@ -80,7 +81,6 @@ The database needed to be accessed by 100+ people.
 Defending Decisions
 
 The choice of tools, technologies, and data model are justified well.
-
 
 Project code is clean and modular.
 

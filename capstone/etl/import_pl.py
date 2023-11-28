@@ -278,29 +278,20 @@ def start():
             )
 
     # Insert Athletes
-    # handle_athletes(pd.concat(athletes_frames))
+    handle_athletes(pd.concat(athletes_frames))
     athletes = load_table("powerlifting_athlete")
 
     # Insert Locations
-    # handle_locations(pd.concat(location_frames))
+    handle_locations(pd.concat(location_frames))
     locations = load_table("powerlifting_contestlocation")
 
     # Insert Contests
-    # handle_contests(pd.concat(contest_frames), locations)
+    handle_contests(pd.concat(contest_frames), locations)
     contests = load_table("powerlifting_contest")
 
     # Insert Contest Results
     handle_contest_results(pd.concat(contest_result_frames), athletes, contests)
 
 
-def test():
-    df1 = [
-        ["name", "date"],
-        ["Open Tournament", "2019-05-11"],
-        ["World Open Championships", "2016-11-14"],
-    ]
-
-
 if __name__ == "__main__":
     start()
-    # test()
