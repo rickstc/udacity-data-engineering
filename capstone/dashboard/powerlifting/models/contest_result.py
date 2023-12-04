@@ -51,7 +51,7 @@ class ContestResult(models.Model):
     event = models.CharField(choices=EventChoices.choices, max_length=2)
     equipment = models.CharField(max_length=1, choices=EquipmentChoices.choices)
     drug_tested = models.BooleanField(default=False)
-    division = models.CharField(max_length=32, blank=True, default="")
+    division = models.CharField(max_length=64, blank=True, default="")
 
     age = models.DecimalField(max_digits=4, decimal_places=1, default=0)
     age_class = models.CharField(blank=True, default="", max_length=6)

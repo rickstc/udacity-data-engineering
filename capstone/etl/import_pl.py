@@ -123,6 +123,28 @@ def handle_contest_results(df, athletes, contests):
     df["drug_tested"].replace("No", "False", inplace=True)
     df["drug_tested"].fillna(value="False", inplace=True)
 
+    # Drop any rows with null values for athlete
+    df = df.dropna(subset=["athlete_id"])
+
+    # Replace some null values to match desired table defaults
+    df["drug_tested"].fillna(value=False, inplace=True)
+    df["division"].fillna(value="", inplace=True)
+
+    df["deadlift"].fillna(value=0, inplace=True)
+    df["squat"].fillna(value=0, inplace=True)
+    df["bench_press"].fillna(value=0, inplace=True)
+
+    df["bodyweight"].fillna(value=0, inplace=True)
+    df["weight_class"].fillna(value=0, inplace=True)
+
+    df["age"].fillna(value=0, inplace=True)
+    df["age_class"].fillna(value="", inplace=True)
+    df["birth_year_class"].fillna(value="", inplace=True)
+
+    df["place"].fillna(value=0, inplace=True)
+    df["meet_total"].fillna(value=0, inplace=True)
+    df["dots"].fillna(value=0, inplace=True)
+
     print("Post:")
     print(df)
 
