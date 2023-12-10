@@ -33,6 +33,8 @@ def load_table(table_name):
 def parse_line(line):
     return [
         line[0:11],
+        float(line[12:20]),
+        float(line[21:30]),
         float(line[31:37]),
         line[38:40].strip(),
         line[41:71].strip(),
@@ -53,6 +55,8 @@ def handle_stations():
         lines,
         columns=[
             "station_id",
+            "lat",
+            "lng",
             "elevation",
             "state",
             "name",
@@ -74,40 +78,19 @@ def handle_stations():
     # Replace empty strings in wmo_id
     df["wmo_id"] = df["wmo_id"].replace("", 0)
 
-    # Print the dataframe
-    print(df)
-
     # Insert stations into database
     insert_frame(df, "location_station")
 
 
 def handle_locations():
     df = pd.read_csv("location/cities.csv")
-
-    mgw = df[df["city"] == "Morgantown"]
-
-    shortest_city = df["city"].str.len().min()
-    longest_city = df["city"].str.len().max()
-
-    # Print the results
-    print(f"Shortest city name: {shortest_city}")
-    print(f"Longest city name: {longest_city}")
-
-    shortest_city = df["country"].str.len().min()
-    longest_city = df["country"].str.len().max()
-
-    # Print the results
-    print(f"Shortest country name: {shortest_city}")
-    print(f"Longest country name: {longest_city}")
+    insert_frame(df, "location_citylocation")
 
 
 def start():
     dir = "location"
 
-    # Insert location Stations
-
-    # handle_stations()
-    # stations = load_table("location_station")
+    handle_stations()
 
     handle_locations()
 

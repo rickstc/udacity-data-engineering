@@ -7,8 +7,16 @@ services:
       POSTGRES_USER: student
       POSTGRES_PASSWORD: student
       POSTGRES_DB: studentdb
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "studentdb", "-U", "student"]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    
 
   pgadmin:
     image: dpage/pgadmin4
@@ -29,3 +37,12 @@ services:
       POSTGRES_USER: student
       POSTGRES_PASSWORD: student
       POSTGRES_DB: studentdb
+    depends_on:
+      postgis:
+        condition: service_healthy
+        restart: true
+    volumes:
+      - ./dashboard:/app
+
+volumes:
+  pgdata:
