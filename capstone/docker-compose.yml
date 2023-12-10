@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  pg:
+  postgis:
     image: postgis/postgis:latest
     restart: always
     environment:
@@ -18,3 +18,14 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "8080:80"
+
+  dashboard:
+    build: dashboard
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: dashboard.settings
+      POSTGRES_HOST: postgis
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: student
+      POSTGRES_DB: studentdb
