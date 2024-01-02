@@ -24,7 +24,7 @@ class ContestLocationSerializer(serializers.ModelSerializer):
 
 class ContestSerializer(serializers.ModelSerializer):
     location = ContestLocationSerializer
-    results = ContestResultSerializer(many=True)
+    # results = ContestResultSerializer(many=True)
 
     class Meta:
         model = models.Contest

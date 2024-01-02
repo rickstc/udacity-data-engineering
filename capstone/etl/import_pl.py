@@ -3,6 +3,7 @@ import csv
 import pandas as pd
 import psycopg2
 from sqlalchemy import create_engine
+from sqlalchemy.sql import text
 
 
 def combine_columns(row):
@@ -179,13 +180,14 @@ def handle_contests(df, locations_df):
     df = df.merge(locations_df, on=["country", "town", "state"], how="left")
 
     # Remove unnecessary fields post merge
-    df = df.drop(["country", "state", "town"], axis=1)
+    df = df.drop(["country", "state", "town", "location", "population"], axis=1)
 
     # Fill in missing values
     df.federation.fillna(value="", inplace=True)
     df.parent_federation.fillna(value="", inplace=True)
 
     # Insert into database
+
     insert_frame(df, "powerlifting_contest")
 
 
@@ -228,14 +230,140 @@ def handle_locations(df):
     # Create a deduplicating column
     df["dedup"] = df.apply(combine_columns, axis=1)
 
+    print(df)
+
     # Deduplicate Columns
     df = df.drop_duplicates("dedup")
+
+    print(df)
 
     # Drop deduplicating column
     df = df.drop("dedup", axis=1)
 
+    df["cc_key"] = df["town"] + "." + df["country"]
+
+    print(df)
+
+    # cities_list = load_csv("location/cities.csv")
+    city_df = pd.read_csv("location/cities.csv")
+
+    city_df["cc_key"] = city_df["city"] + "." + city_df["country"]
+
+    print(city_df)
+
+    # Merge dataframes based on country and matching criteria
+    merged_df = pd.merge(
+        df,
+        city_df,
+        on="cc_key",
+        how="left",
+    )
+
+    population_count = merged_df["population"].notna().sum()
+
+    print(f"Number of rows with population values: {population_count}")
+
+    # # Filter for successful matches and update columns
+    # matched_df = merged_df[merged_df["_merge"] == "both"]
+    # matched_df.rename(
+    #     columns={"lat_city": "lat", "lng_city": "lng", "population_city": "population"},
+    #     inplace=True,
+    # )
+
+    # Drop unnecessary columns
+    merged_df = merged_df.drop("country_y", axis=1)
+    merged_df = merged_df.drop("cc_key", axis=1)
+    merged_df = merged_df.drop("city", axis=1)
+    merged_df.lat.fillna(value=0, inplace=True)
+    merged_df.lng.fillna(value=0, inplace=True)
+    merged_df.population.fillna(value=0, inplace=True)
+
+    merged_df = merged_df.rename(columns={"country_x": "country"})
+    # matched_df.drop(columns=["_merge"], inplace=True)
+
+    print(merged_df)
+
+    # Create a deduplicating column
+    merged_df["dedup"] = merged_df.apply(combine_columns, axis=1)
+
+    print(merged_df)
+
+    # Deduplicate Columns
+    merged_df = merged_df.drop_duplicates("dedup")
+
+    insert_location_df(merged_df)
+
     # Insert locations into database
-    insert_frame(df, "powerlifting_contestlocation")
+    # insert_frame(merged_df, "powerlifting_contestlocation")
+
+
+def insert_location_df(df):
+    """
+    Insert the location dataframe
+    """
+
+    # Connect to the database and get a connection object
+    db = create_engine("postgresql://student:student@127.0.0.1/studentdb")
+    conn = db.connect()
+
+    # Base statement for insert into `location_station` table
+    base_statement = text(
+        """
+        INSERT INTO powerlifting_contestlocation (
+            town,
+            country,
+            state,
+            population,
+            location
+        ) VALUES (
+            :town,
+            :country,
+            :state,
+            :population,
+            ST_PointFromText('POINT(:lat :lng)', 4326)
+        )
+    """
+    )
+
+    # List to hold data that will be put into the database
+
+    conn.execute(base_statement, df.to_dict("records"))
+
+    conn.commit()
+
+    conn.close()
+
+
+def clean_data(city_dictionary):
+    """
+    Clean some data fields on a city dictionary
+    """
+    city_dictionary["lat"] = float(city_dictionary["lat"])
+    city_dictionary["lng"] = float(city_dictionary["lng"])
+    city_dictionary["population"] = int(city_dictionary["population"])
+
+    return city_dictionary
+
+
+def load_csv(file_path):
+    """
+    Converts a CSV with headers into a list of dictionaries with the header row
+    as keys
+    """
+
+    # List to hold the dictionaries
+    data = []
+
+    # Open the file
+    with open(file_path, "r") as csvfile:
+        # Instantiate a reader
+        reader = csv.reader(csvfile)
+        # Read the header row
+        headers = next(reader)
+        for row in reader:
+            # Create a dictionary from the row data
+            data.append(clean_data(dict(zip(headers, row))))
+    return data
 
 
 def start():
@@ -300,11 +428,11 @@ def start():
             )
 
     # Insert Athletes
-    handle_athletes(pd.concat(athletes_frames))
+    # handle_athletes(pd.concat(athletes_frames))
     athletes = load_table("powerlifting_athlete")
 
     # Insert Locations
-    handle_locations(pd.concat(location_frames))
+    # handle_locations(pd.concat(location_frames))
     locations = load_table("powerlifting_contestlocation")
 
     # Insert Contests

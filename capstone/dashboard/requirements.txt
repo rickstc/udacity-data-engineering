@@ -24,3 +24,4 @@ sqlalchemy==2.0.23
 sqlparse==0.4.4 ; python_version >= '3.5'
 typing-extensions==4.9.0 ; python_version >= '3.8'
 tzdata==2023.3 ; python_version >= '2'
+whitenoise==6.6.0

@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 
 """
 Deciding how to store Country, State, and Town was somewhat tricky. Based on what we can
@@ -30,6 +30,8 @@ class ContestLocation(models.Model):
     country = models.CharField(max_length=128)
     state = models.CharField(max_length=128, null=False, blank=True, default="")
     town = models.CharField(max_length=128, null=False, blank=True, default="")
+    location = models.PointField(blank=True, null=True, default=None, srid=4326)
+    population = models.PositiveIntegerField(blank=False, default=0)
 
     class Meta:
         unique_together = ("country", "state", "town")

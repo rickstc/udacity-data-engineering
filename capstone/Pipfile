@@ -12,6 +12,9 @@ sqlalchemy = "*"
 djangorestframework = "*"
 django-filter = "*"
 gunicorn = "*"
+whitenoise = "*"
+geopandas = "*"
+geopy = "*"
 
 [dev-packages]
 
