@@ -1,6 +1,5 @@
 from rest_framework import viewsets, mixins
-from analytics import models
-from analytics import serializers
+from dimension import models, serializers
 
 
 class ContestViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
