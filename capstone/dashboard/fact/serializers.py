@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from powerlifting import models
+from fact import models
 
 
 class ContestResultSerializer(serializers.ModelSerializer):
@@ -28,4 +28,10 @@ class ContestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Contest
+        fields = "__all__"
+
+
+class WeatherStationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.WeatherStation
         fields = "__all__"

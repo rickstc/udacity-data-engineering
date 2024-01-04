@@ -41,9 +41,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "django.contrib.gis",
-    "powerlifting",
-    "location",
-    "analytics",
+    "fact",
+    "dimension",
 ]
 
 MIDDLEWARE = [

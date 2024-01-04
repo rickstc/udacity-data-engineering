@@ -1,5 +1,5 @@
 from rest_framework import viewsets, mixins
-from powerlifting import models, serializers
+from fact import models, serializers
 
 
 class AthleteViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -30,3 +30,8 @@ class ContestViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 class ContestResultViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     queryset = models.ContestResult.objects.all()
     serializer_class = serializers.ContestResultSerializer
+
+
+class StationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    queryset = models.WeatherStation.objects.all()
+    serializer_class = serializers.WeatherStationSerializer

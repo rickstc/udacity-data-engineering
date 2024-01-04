@@ -47,10 +47,10 @@ def import_stations():
     db = create_engine("postgresql://student:student@127.0.0.1/studentdb")
     conn = db.connect()
 
-    # Base statement for insert into `location_station` table
+    # Base statement for insert into `fact_weatherstation` table
     base_statement = text(
         """
-        INSERT INTO location_station (
+        INSERT INTO fact_weatherstation (
             station_id,
             station_location,
             elevation,

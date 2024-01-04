@@ -150,7 +150,7 @@ def handle_contest_results(df, athletes, contests):
     print(df)
 
     # Update database
-    insert_frame(df, "powerlifting_contestresult")
+    insert_frame(df, "fact_contestresult")
 
 
 def handle_contests(df, locations_df):
@@ -188,7 +188,7 @@ def handle_contests(df, locations_df):
 
     # Insert into database
 
-    insert_frame(df, "powerlifting_contest")
+    insert_frame(df, "fact_contest")
 
 
 def handle_athletes(df):
@@ -213,7 +213,7 @@ def handle_athletes(df):
     # If there are 'deduplication_number' fields with no value, replace with 0
     athletes.deduplication_number.fillna(value=0, inplace=True)
 
-    insert_frame(athletes, "powerlifting_athlete")
+    insert_frame(athletes, "fact_athlete")
     return athletes
 
 
@@ -294,7 +294,7 @@ def handle_locations(df):
     insert_location_df(merged_df)
 
     # Insert locations into database
-    # insert_frame(merged_df, "powerlifting_contestlocation")
+    # insert_frame(merged_df, "fact_contestlocation")
 
 
 def insert_location_df(df):
@@ -309,7 +309,7 @@ def insert_location_df(df):
     # Base statement for insert into `location_station` table
     base_statement = text(
         """
-        INSERT INTO powerlifting_contestlocation (
+        INSERT INTO fact_contestlocation (
             town,
             country,
             state,
@@ -428,16 +428,16 @@ def start():
             )
 
     # Insert Athletes
-    # handle_athletes(pd.concat(athletes_frames))
-    athletes = load_table("powerlifting_athlete")
+    handle_athletes(pd.concat(athletes_frames))
+    athletes = load_table("fact_athlete")
 
     # Insert Locations
-    # handle_locations(pd.concat(location_frames))
-    locations = load_table("powerlifting_contestlocation")
+    handle_locations(pd.concat(location_frames))
+    locations = load_table("fact_contestlocation")
 
     # Insert Contests
     handle_contests(pd.concat(contest_frames), locations)
-    contests = load_table("powerlifting_contest")
+    contests = load_table("fact_contest")
 
     # Insert Contest Results
     handle_contest_results(pd.concat(contest_result_frames), athletes, contests)
