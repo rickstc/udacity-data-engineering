@@ -1,8 +1,8 @@
 import glob
 import csv
 import pandas as pd
-import psycopg2
 from sqlalchemy import create_engine
+import psycopg2
 from sqlalchemy.sql import text
 
 
@@ -29,6 +29,23 @@ def load_table(table_name):
     df = pd.read_sql(sql_query, conn)
 
     return df
+
+
+def clean_table(table_name):
+    connection = psycopg2.connect(
+        dbname="studentdb",
+        host="127.0.0.1",
+        user="student",
+        password="student",
+    )
+    connection.set_session(autocommit=True)
+
+    cursor = connection.cursor()
+
+    cursor.execute(f"DELETE FROM {table_name};")
+    cursor.close()
+
+    connection.close()
 
 
 def lookup_contest_id(row, lookup):
@@ -193,28 +210,6 @@ def handle_contests(df, locations_df):
 
 def handle_athletes(df):
     """Transform dataframe containing athlete information and insert into database"""
-    # 'Name' column is deduplicated via # symbol, so, we can drop based on name
-    athletes = df.drop_duplicates("Name")
-
-    # Rename Name to name and Sex to gender to conform with database fields
-    athletes = athletes.rename(columns={"Name": "name", "Sex": "gender"})
-
-    # Split "name" column into "name" and "deduplication_number"
-    try:
-        athletes[["name", "deduplication_number"]] = athletes.name.str.split(
-            " #", expand=True
-        )
-    except:
-        athletes["deduplication_number"] = 0
-
-    # Transform 'gender' field, replacing "Mx" with "X", to conform with API Schema
-    athletes["gender"].replace("Mx", "X", inplace=True)
-
-    # If there are 'deduplication_number' fields with no value, replace with 0
-    athletes.deduplication_number.fillna(value=0, inplace=True)
-
-    insert_frame(athletes, "fact_athlete")
-    return athletes
 
 
 def handle_locations(df):
@@ -428,18 +423,25 @@ def start():
             )
 
     # Insert Athletes
+    clean_table("fact_contest")
+    clean_table("fact_contestlocation")
+    clean_table("fact_contestresult")
+    clean_table("fact_athlete")
     handle_athletes(pd.concat(athletes_frames))
     athletes = load_table("fact_athlete")
 
     # Insert Locations
+
     handle_locations(pd.concat(location_frames))
     locations = load_table("fact_contestlocation")
 
     # Insert Contests
+
     handle_contests(pd.concat(contest_frames), locations)
     contests = load_table("fact_contest")
 
     # Insert Contest Results
+
     handle_contest_results(pd.concat(contest_result_frames), athletes, contests)
 
 

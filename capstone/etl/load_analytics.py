@@ -29,39 +29,50 @@ def build_contests():
 
 
 def build_locations():
-    db = create_engine("postgresql://student:student@127.0.0.1/studentdb")
-    conn = db.connect()
+    connection = psycopg2.connect(
+        dbname="studentdb",
+        host="127.0.0.1",
+        user="student",
+        password="student",
+    )
+    connection.set_session(autocommit=True)
+
+    cursor = connection.cursor()
+
+    cursor.execute(f"DELETE FROM dimension_location;")
 
     sql_query = """
-        SELECT
-            c.city, c.country, c.lat, c.lng,
-            s.name AS station_name,
-            ST_DistanceSphere(
-                ST_GeogPoint(c.lng, c.lat),
-                ST_GeogPoint(s.lng, s.lat)
-            ) / 1000 AS distance_km
-        FROM location_citylocation AS c
-        JOIN location_station AS s
-        ON ST_DWithin(
-        ST_GeogPoint(c.lng, c.lat),
-        ST_GeogPoint(s.lng, s.lat),
-        (
-            SELECT MIN(ST_DistanceSphere(
-            ST_GeogPoint(c.lng, c.lat),
-            ST_GeogPoint(s2.lng, s2.lat)
-            ))
-            FROM location_station AS s2
+        INSERT INTO dimension_location (
+            country,
+            state,
+            town,
+            weather_station,
+            distance_to_station,
+            elevation,
+            population
         )
-        );
+        SELECT
+            fcl.country,
+            fcl.state,
+            fcl.town,
+            ws.station_name AS weather_station,
+            ST_Distance(fcl.location, ws.station_location) / 1000 AS distance_to_station,
+            ws.elevation,
+            fcl.population
+        FROM fact_contestlocation AS fcl
+        CROSS JOIN LATERAL (
+            SELECT *
+            FROM fact_weatherstation AS ws
+            ORDER BY ST_Distance(fcl.location, ws.station_location) ASC
+            LIMIT 1
+        ) AS ws;
         """
 
-    sql_query2 = """
-    SELECT * FROM location_citylocation AS c;
-    """
+    cursor.execute(sql_query)
 
-    df = pd.read_sql(sql_query2, conn)
+    cursor.close()
 
-    print(df)
+    connection.close()
 
 
 def start():
