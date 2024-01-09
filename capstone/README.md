@@ -1,106 +1,137 @@
-# Capstone Project - Powerlifting Climate Data Explorer
+# Udacity Data Engineering Nanodegree Capstone Project
 
-# Project Introduction and Scope
-<!-- TODO: Introduce the project -->
-The world of competitive powerlifting is filled with atheletes doing their very best to control and account for every variable in order to perform at their very best. In this project, I will build an ETL pipeline that loads geographic elevation data and powerlifting competition results into a dashboard that will allow the user to analyze any potential impacts that altitude at the competition venue may have on the athlete's performance.
+## Submission Information
+
+Author: Timothy Ricks
+
+Submission Date: 2024-01-09
+
+External Repository: [GitHub](https://github.com/rickstc/udacity-data-engineering)
+
+## Project Introduction and Scope
+
+Udacity's Data Engineering Nanodegree Program Capstone Project instructs the student to apply the concepts covered in the course to complete a project provided by Udacity or to independently design their own project. In either case, the student is expected to analyze at least two datasets with at least a million records, define a data model, design and run an ETL data pipeline to load the data into a database, and complete a project write up summarizing the project and answering some questions.
+
+The student opted to design their own project instead of using the resources provided by Udacity. In this capstone project, the student will attempt to identify what (if any) impact elevation and population have on the sport of competitive powerlifting.
+
+## Data Dashboard
+
+The student opted to leverage [Django](https://www.djangoproject.com/) and [Django REST Framework](https://www.django-rest-framework.org/) to build a REST API and visual dashboard to inspect the data in the database. While technically outside the scope of the project; if the goal of the program is to demonstrate the student's ability to engineer a data pipeline to meet the needs of the organization's decision makers, a visual dashboard and API that can be build upon seem like a necessity.
+
+Django is python web framework that provides an ORM (Object Relational Mapper) that makes working with objects in a database easy. Django REST Framework is also a python web framework that provides tools for building REST APIs, as well as a "Browsable API" built using Twitter Bootstrap that allows users to view and search data using HTML.
+
+The student kept the configuration and customization of this dashboard to a minimum and made comments where significant development was made beyond leveraging the frameworks's key components.
+
+Athlete List Example:
+
+![A List of Athletes](/docs/img/fact-athlete-list.png)
+
+This API is paginated by default to improve the performance, and does allow for some filtering and reordering, which would provide decision makers with the ability to sort and filter for data that assists them in making decisions. The student, however, didn't need to leverage this functionality to complete the project.
+
+Athlete Filtering Example:
+
+![Filters for Athletes](/docs/img/athlete-list-filters.png)
+
+### A Note on Models
+
+If the project reviewer is familiar with Django, you'll know that it comes bundled with an ORM (Object Relational Mapper). In the sprit of full disclosure, the the student did leverage this to create the database tables for the fact and dimension tables. However, the student designed the models in accordance with the data and selected appropriate data types for the data being stored. Additionally, the create table syntax is documented in the documentation for this project's [Data Models](/docs/data_models.md).
 
 ## Data Sources
 
 ### Powerlifting Dataset
 
-OpenPowerlifting maintains a data service that aggregates lift data from powerlifting competitions and provides a downloadable CSV file with results from powerlifting meets all over the world. Additionally, OpenPowerlifting maintains good documentation about their data here: [Open Powerlifting Data Documentation](https://openpowerlifting.gitlab.io/opl-csv/bulk-csv-docs.html). As of 8/19/2023, this CSV contains 2,960,122 records, which satisfies the requirements for at least one million records.
+OpenPowerlifting maintains a data service that aggregates lift data from powerlifting competitions and provides a downloadable CSV file with results from powerlifting meets all over the world. Additionally, OpenPowerlifting maintains good documentation about their data here: [Open Powerlifting Data Documentation](https://openpowerlifting.gitlab.io/opl-csv/bulk-csv-docs.html). As of 1/6/2024, this CSV contains 3,043,014 records, which satisfies the requirements for at least one million records.
 
 ### Elevation Dataset
 
-The weather data used in this project is coming from The Global Historical Climatology Network - Daily (GHCN-Daily), courtesy of the National Centers for Environment Information, a US agency managed by the National Oceanic and Atmospheric Administration (NOAA). This data is organized into multiple CSV files. The data directory provides a folder for each year starting with 1901. Within each folder for a given year, there is a CSV file per weather station. Within each CSV file, there is a line for each hour of each day. Therefore, a single year's worth of data could contain as many as 306,600,000 (35,000 stations *365 days* 24 hours/day) records. Documentation for this data set can be found at the [GHCN-Daily Dataset Overview Page](https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html).
+The Global Historical Climatology Network - Daily (GHCN-Daily) maintains a list of weather stations around the world, courtesy of the National Centers for Environment Information, a US agency managed by the National Oceanic and Atmospheric Administration (NOAA). The weather station data contains location and elevation data for 125,968 weather stations globally. Documentation for this data set can be found at the [GHCN-Daily Dataset Overview Page](https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html).
 
-## Data Dashboard
+### Population/Location Dataset
 
-I will be building an ETL pipeline that loads data into a Postgres database, a REST API that will expose the data, and a visual dashboard that consumes the API that can be used to explore and search the data.
+The powerlifting dataset does not provide coordinate-based location for the powerlifting competitions in it's dataset. In order to determine the elevation and population of the locations that the competitions took place, the student merged the powerlifting data with a third dataset that contains coordinates and population for 4,660 of cities around the world.
 
-### ETL Pipeline
-<!-- TODO: Information on the pipeline -->
+This data was obtained from [GitHub User curran](https://gist.github.com/curran/13d30e855d48cdd6f22acdf0afe27286/). If the goal of this project had been the most accurate, complete data, the student would have opted to leverage an API to geocode the contest location data from the powerlifting dataset, and used a more official source of data for population statistics, such as the U.S. Census data for the US. However, the purpose of the project was to demonstrate the ability to model data and build a pipeline for importing it into a database. Therefore, the student decided to leverage this dataset to cut down on potential costs or registration with external APIs, and to make this project more easily reproducible.
 
-### REST API and Visual Dashboard
+## ETL Pipeline
 
-I will be leveraging [Django](https://www.djangoproject.com/) and [Django REST Framework](https://www.django-rest-framework.org/) to build the API and dashboard. Django is python web framework that provides an ORM (Object Relational Mapper) that makes working with objects in a database easy. Django REST Framework is also a python web framework that provides tools for building REST APIs, as well as a "Browsable API" built using Twitter Bootstrap that allows users to view and search data using HTML.
+The student leveraged Apache Airflow to build a pipeline that accomplishes:
 
-# Explore and Access the Data
+- Removal of Existing Database Records
+- Acquisition of the data from the data sources
+- Transformation of the data from the downloaded data into fact tables used to stage the data
+- Population of dimension tables from the fact tables that summarizes data for decision makers
+- Verification that the records got loaded into the database
 
-<!-- 
-Explore the data to identify data quality issues, like missing values, duplicate data, etc.
-Document steps necessary to clean the data
--->
+Here is an example of the Airflow Dashboard:
+![Airflow Dashboard - DAG Listing](docs/img/airflow-dags.png)
 
-# Define the Data Model
+The student defined three DAGs (Directed Acyclic Graph) that serve as a blueprint for the data pipeline.
 
-<!-- 
-Map out the conceptual data model and explain why you chose that model
-List the steps necessary to pipeline the data into the chosen data model
--->
+- Fact DAG - This handles the data acquisition and population into fact tables
+- Dimension DAG - This handles the transformation of the data stored in the fact tables into the dimension tables
+- Capstone DAG - An "all in one" pipeline that fulfills the full scope of the project
 
-# Run ETL to Model the Data
+The primary reason for defining multiple DAGs was to assist the student during development by not having to run the full pipeline every time.
 
-<!-- 
+## Infrastructure
 
-Create the data pipelines and the data model
-Include a data dictionary
-Run data quality checks to ensure the pipeline ran as expected
-Integrity constraints on the relational database (e.g., unique key, data type, etc.)
-Unit tests for the scripts to ensure they are doing the right thing
-Source/count checks to ensure completeness
--->
+In most modern production environments, these services including Apache Airflow's webserver, scheduler and workers, as well as the database servers, and Django API would be hosted either in an organization's data center or preferably on "the cloud" using a cloud provider such as Amazon Web Services, Microsoft Azure, or Google Cloud Platform.
 
-# Complete Project Write Up
+However, it is common for developers to use a local environment to develop and test their code prior to full deployment. The student opted to leverage Docker to host Apache Airflow and it's services, a PostgreSQL database with the geospatial extensions enabled (commonly referred to as PostGIS), the REST API, and PGAdmin; a database an open-source graphical user interface administration tool for PostgreSQL databases.
 
-<!-- 
-What's the goal? What queries will you want to run? How would Spark or Airflow be incorporated? Why did you choose the model you chose?
-Clearly state the rationale for the choice of tools and technologies for the project.
-Document the steps of the process.
-Propose how often the data should be updated and why.
-Post your write-up and final data model in a GitHub repo.
-Include a description of how you would approach the problem differently under the following scenarios:
-    If the data was increased by 100x.
-    If the pipelines were run on a daily basis by 7am.
-    If the database needed to be accessed by 100+ people.
--->
+This process ran inside a terminal in the student's IDE. Specific notes on the implementation of this is beyond the scope of the project, but comments have been made inside specific student-created files wherever explanation was necessary.
 
-<!-- Rubric
+Docker in Terminal Example:
 
-Scoping the Project
+![Docker Running in Terminal](docs/img/docker-in-terminal.png)
 
-The write up includes an outline of the steps taken in the project. The purpose of the final data model is made explicit.
+## Project Deliverables
 
-Addressing Other Scenarios
+The project deliverables have been organized into the following pages within the "docs/" folder:
 
-The write up describes a logical approach to this project under the following scenarios:
+### Udacity Required
 
-The data was increased by 100x.
-The pipelines would be run on a daily basis by 7 am every day.
-The database needed to be accessed by 100+ people.
-Defending Decisions
+- [Data Exploration](docs/data_exploration.md) - Covers the data sources and data quality issues
+- [Data Models](docs/data_models.md) - Covers the data models and why the student made certain decisions around data storage
+- [ETL Pipeline](docs/etl_pipeline.md) - Goes into more detail about the ETL pipeline and the choices the student made during the development of the pipeline
+- [Project Write-Up](docs/write_up.md) - Answers the questions posed for the student to consider
 
-The choice of tools, technologies, and data model are justified well.
+### Student Opted to Provide
 
-Project code is clean and modular.
+- [Rubric](docs/rubric.md) - A summary of the project's rubric to be used while grading the project (so that anyone who may come across this in the future can see what was expected of the student)
 
-All coding scripts have an intuitive, easy-to-follow structure with code separated into logical functions. Naming for variables and functions follows the PEP8 style guidelines. The code should run without errors.
+## Powerlifting Insights
 
-Quality Checks
+While not part of the project, for anyone curious, the student was not able to determine any correlation between either the elevation where a powerlifting contest took place or the population of the area that the contest took place.
 
-The project includes at least two data quality checks.
+### DOTS
 
-Data Model
+The student based an analysis of "performance" at a powerlifting competition around the competitor's DOTS at a given competition. DOTS stands for Dynamic Optimal Total Score, and it is a mechanism for comparing the strength of a lifter across different weight classes and in different gender's. Generally, the higher an athlete's DOTS, the stronger they are relative to other lifters.
 
-The ETL processes result in the data model outlined in the write-up.
-A data dictionary for the final data model is included.
-The data model is appropriate for the identified purpose.
-Datasets
+The student aggregated the DOTS entries from the powerlifting data and aggregated them by competition by calculating an "Average" score for a competition.
 
-The project includes:
+### Elevation
 
-At least 2 data sources
-More than 1 million lines of data.
-At least two data sources/formats (csv, api, json)
+One might theorize that elevation may play a role in athlete performance. The student plotted the competition's average DOTS against the elevation associated with that competition in the following chart:
 
--->
+![DOTS by Elevation](docs/img/dots-by-elevation.png)
+
+There does not appear to be any correlation between the elevation that a contest takes place at and the average DOTS for the competition.
+
+Reasons for this may include:
+
+- Data Quality Issues - The contest's location was determined by string comparing the country and city; this variation may lead to incorrect location determination for a contest. Additionally, elevation was determined by the nearest weather station. The location of the weather station may not correspond directly with the elevation at the meet.
+- Regional nature of contests - Athletes at the highest levels can travel great distances to the most prestigious competitions, however, most athlete will compete at competitions that are closest to them. It may be that there is very little variability at most contests because the athletes are already acclimated to the elevation. At the elite level, differences between the elevation that an athlete trains at regularly and the elevation of the competition may have a larger impact on performance, but there is not enough data to perform that analysis.
+
+### Population
+
+One might expect that a competition held in a location with a higher population might result in higher scores, either due to the larger venue attracting better talent or because of access to more training opportunities that come with more resources in an area.
+
+![DOTS by Population](docs/img/dots-by-population.png)
+
+However, just as with elevation, the data does not seem to indicate any correlation between contest's city's population and overall performance.
+
+Reasons for this may include:
+
+- Data Quality Issues - The contest's location was determined by string comparing the country and city; this variation may lead to incorrect location determination for a contest. Additionally, elevation was determined by the nearest weather station. The location of the weather station may not correspond directly with the elevation at the meet.
+- General Lack of Correlation - Certain strength sports, like Strongman, may benefit more from additional resources in an area, such as specialized training implements. However, powerlifting focuses on three main lifts: Squat, Bench Press, Deadlift, all of which require only a bar and weights to train for. This equipment should be standard at most commercial facilities and even home/garage gyms.

@@ -8,7 +8,7 @@ DATA_DIR = "/opt/airflow/data_dir"
 
 def download_weather_station_data(**kwargs):
     """
-    Downloads the powerlifting data
+    Downloads the weather station data
     """
     url = "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt"
     download_fp = os.path.join(DATA_DIR, "stations.txt")
@@ -21,7 +21,7 @@ def download_weather_station_data(**kwargs):
     and we would want to be reacquiring data as it changed.
 
     However, while the student is testing this project, it didn't make sense or
-    seem kind to continually redownload the dataset from the data source.
+    seem kind to continually download the dataset from the data source.
     """
     print(f"Checking to see if {download_fp} exists")
     if not os.path.exists(download_fp):

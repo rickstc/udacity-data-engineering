@@ -6,12 +6,13 @@ from operators.acquire_pl_data import download_pl_data
 from operators.acquire_weather_station_data import download_weather_station_data
 from operators.check_records_exist import check_records_in_database
 from operators.clear_tables import clear_table
+from operators.load_dimension_contests import load_dimension_contest
+from operators.load_dimension_locations import load_dimension_location
 from operators.load_fact_athletes import load_fact_athlete
 from operators.load_fact_contests import load_fact_contest
 from operators.load_fact_locations import load_fact_location
 from operators.load_fact_results import load_fact_result
 from operators.load_fact_stations import load_fact_station
-import os
 
 
 # Create the DAG
@@ -49,6 +50,18 @@ with DAG(
         task_id="clear_results",
         python_callable=clear_table,
         op_kwargs={"table_name": "fact_contestresult"},
+    )
+
+    clear_dim_loc = PythonOperator(
+        task_id="clear_dimension_loc",
+        python_callable=clear_table,
+        op_kwargs={"table_name": "dimension_location"},
+    )
+
+    clear_dim_contest = PythonOperator(
+        task_id="clear_dimension_contest",
+        python_callable=clear_table,
+        op_kwargs={"table_name": "dimension_contest"},
     )
 
     # Acquire Powerlifting Data
@@ -169,6 +182,42 @@ with DAG(
         },
     )
 
+    # Dimension Location
+    dim_location = PythonOperator(
+        task_id="load_dim_location",
+        python_callable=load_dimension_location,
+        op_kwargs={
+            "table_name": "dimension_location",
+        },
+    )
+
+    # Check Contest Result Loaded
+    check_dim_location = PythonOperator(
+        task_id="check_dim_location_loaded",
+        python_callable=check_records_in_database,
+        op_kwargs={
+            "table_name": "dimension_location",
+        },
+    )
+
+    # Dimension Contest
+    dim_contest = PythonOperator(
+        task_id="load_dim_contest",
+        python_callable=load_dimension_contest,
+        op_kwargs={
+            "table_name": "dimension_contest",
+        },
+    )
+
+    # Check Contest Result Loaded
+    check_dim_contest = PythonOperator(
+        task_id="check_dim_contest_loaded",
+        python_callable=check_records_in_database,
+        op_kwargs={
+            "table_name": "dimension_contest",
+        },
+    )
+
     # Clear Tables
     clear_athlete >> fact_athlete
     clear_location >> fact_location
@@ -179,6 +228,9 @@ with DAG(
     # Contest Results Must be deleted first
     clear_result >> clear_contest
     clear_contest >> clear_location
+
+    # Clear Dimension Tables
+    clear_dim_contest >> clear_dim_loc
 
     # Data Acquisition Dependencies
     powerlifting_acquire >> fact_athlete
@@ -203,3 +255,17 @@ with DAG(
     check_fact_athlete >> fact_result
     check_fact_location >> fact_result
     check_fact_contest >> fact_result
+
+    # Dimension after all facts
+    check_fact_athlete >> dim_location
+    check_fact_contest >> dim_location
+    check_fact_location >> dim_location
+    check_fact_result >> dim_location
+    check_fact_station >> dim_location
+
+    # Dimension Location
+    dim_location >> check_dim_location
+
+    # Dimension Contest
+    check_dim_location >> dim_contest
+    dim_contest >> check_dim_contest

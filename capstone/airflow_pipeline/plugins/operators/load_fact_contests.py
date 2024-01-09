@@ -4,6 +4,10 @@ import os
 
 
 def load_fact_contest(file_path, table_name, location_table_name, **kwargs):
+    """
+    This loads data into the 'fact_contest' table. This corresponds to the
+    'fact.Contest' model in the dashboard application.
+    """
     print(f"Loading table: {table_name}")
     # Remove data in the table if it exists
     connection = DBHelpers.connect()
@@ -34,8 +38,10 @@ def load_fact_contest(file_path, table_name, location_table_name, **kwargs):
             ]
         )
 
-    df = pd.concat(contest_frames)  # Rename Fields
+    # Get a data frame from the list of frames
+    df = pd.concat(contest_frames)
 
+    # Rename columns to match the database column names
     df = df.rename(
         columns={
             "MeetCountry": "country",
@@ -69,5 +75,6 @@ def load_fact_contest(file_path, table_name, location_table_name, **kwargs):
     df.federation.fillna(value="", inplace=True)
     df.parent_federation.fillna(value="", inplace=True)
 
+    # Insert the data frame into the database
     DBHelpers.insert_table_df(engine, table_name, df)
     return True

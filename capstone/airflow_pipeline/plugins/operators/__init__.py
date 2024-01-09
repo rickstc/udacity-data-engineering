@@ -3,6 +3,8 @@ from .acquire_pl_data import download_pl_data
 from .acquire_weather_station_data import download_weather_station_data
 from .check_records_exist import check_records_in_database
 from .clear_tables import clear_table
+from .load_dimension_contests import load_dimension_contest
+from .load_dimension_locations import load_dimension_location
 from .load_fact_athletes import load_fact_athlete
 from .load_fact_contests import load_fact_contest
 from .load_fact_locations import load_fact_location

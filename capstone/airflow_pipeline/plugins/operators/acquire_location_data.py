@@ -8,7 +8,7 @@ DATA_DIR = "/opt/airflow/data_dir"
 
 def download_location_data(**kwargs):
     """
-    Downloads the powerlifting data
+    Downloads location data
     """
     url = "https://gist.githubusercontent.com/curran/13d30e855d48cdd6f22acdf0afe27286/raw/0635f14817ec634833bb904a47594cc2f5f9dbf8/worldcities_clean.csv"
     download_fp = os.path.join(DATA_DIR, "cities.csv")
@@ -21,7 +21,7 @@ def download_location_data(**kwargs):
     and we would want to be reacquiring data as it changed.
 
     However, while the student is testing this project, it didn't make sense or
-    seem kind to continually redownload the dataset from the data source.
+    seem kind to continually download the dataset from the data source.
     """
     print(f"Checking to see if {download_fp} exists")
     if not os.path.exists(download_fp):

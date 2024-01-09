@@ -16,6 +16,7 @@ whitenoise = "*"
 geopandas = "*"
 geopy = "*"
 apache-airflow = "==2.8.0"
+djangorestframework-csv = "*"
 
 [dev-packages]
 

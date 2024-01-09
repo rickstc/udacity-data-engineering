@@ -4,6 +4,9 @@ import os
 
 
 def lookup_contest_id(row, lookup):
+    """This function accepts a data frame row and a dictionary lookup. It
+    calculates a key and then returns the corresponding entry in the dictionary
+    at that key."""
     key = f"{row['name']}.{row['date']}"
     return lookup[key]
 
@@ -16,14 +19,15 @@ def load_fact_result(
     contests_table_name,
     **kwargs,
 ):
+    """
+    This loads data into the 'fact_contestresult' table. This corresponds to
+    the 'fact.ContestResult' model in the dashboard application.
+    """
     print(f"Loading table: {table_name}")
-    # Remove data in the table if it exists
-    connection = DBHelpers.connect()
-    DBHelpers.clear_table(connection, table_name)
-    connection.close()
 
     result_frames = []
 
+    # Ensure the CSV file containing the data exists
     print(f"Looking for CSV at: {file_path}")
     if not os.path.exists(file_path):
         raise ValueError(f"The file_path provided does not exist!")
@@ -56,31 +60,33 @@ def load_fact_result(
                 ],
             ]
         )
+    # Get a dataframe from the list of frames
+    df = pd.concat(result_frames)
 
-    df = pd.concat(result_frames)  # Rename Fields
-
-    # Rename locations
+    # Connect to the database
     engine = DBHelpers.get_engine()
+
+    # Pull locations into a new dataframe
     locations_df = DBHelpers.retrieve_table_df(engine, location_table_name)
     locations_df = locations_df.rename(columns={"id": "location_id"})
 
-    # Rename ids to support foreign keys
+    # Pull athletes into a new dataframe
     athletes = DBHelpers.retrieve_table_df(engine, athletes_table_name)
     athletes = athletes.rename(columns={"id": "athlete_id"})
 
+    # Pull contests into a new dataframe
     contests = DBHelpers.retrieve_table_df(engine, contests_table_name)
     contests = contests.rename(columns={"id": "contest_id"})
 
     """
-    I spent hours trying to merge the df data frame with the contests data frame but I
-    kept getting contest_id = NaN for all records. I decided to, instead, go with the 
-    less elegant but still pretty quick python dictionary to act as a hash map, which
-    still has pretty decent speed. Compute power is cheap, developer time is not.
+    Build a lookup (dictionary) to assist in merging the contests dataframe
+    with the results dataframe.
 
-    df = df.rename(columns={"MeetName": "name", "Date": "date"})
-    # Merge Contests
-    df = df.merge(contests, on=["name", "date"], how="left")
-    
+    This concatenates the contest's 'name' and 'date' to build a unique key
+    that can be used to lookup the foreign key of the contest.
+
+    The access time in a python dictionary is O1, so while this approach is not
+    ideal, it shouldn't be a big drain on performance either.    
     """
     contest_id_lookup = {}
     for index, row in contests.iterrows():
@@ -173,5 +179,6 @@ def load_fact_result(
     df["meet_total"].fillna(value=0, inplace=True)
     df["dots"].fillna(value=0, inplace=True)
 
+    # Insert the dataframe into the database
     DBHelpers.insert_table_df(engine, table_name, df)
     return True

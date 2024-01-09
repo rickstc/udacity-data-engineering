@@ -1,9 +1,6 @@
-import glob
-import csv
 import pandas as pd
 from sqlalchemy import create_engine
 import psycopg2
-from sqlalchemy.sql import text
 
 
 class DBHelpers:

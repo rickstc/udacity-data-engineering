@@ -21,7 +21,7 @@ def download_pl_data(**kwargs):
     and we would want to be reacquiring data as it changed.
 
     However, while the student is testing this project, it didn't make sense or
-    seem kind to continually redownload the dataset from the data source.
+    seem kind to continually download the dataset from the data source.
     """
     print(f"Checking to see if {download_fp} exists")
     if not os.path.exists(download_fp):

@@ -9,15 +9,16 @@ class Athlete(models.Model):
     Fields:
     id - Unique integer field to uniquely identify an athlete
     name - The athlete's name
-    deduplication_number - A number provided to distinguish between athletes with the
-        same name. According to the OPL documentation, two lifters with the same name
-        would have a number symbol followed by a unique number.
+    deduplication_number - A number provided to distinguish between athletes
+        with the same name. According to the OPL documentation, two lifters
+        with the same name would have a number symbol followed by a unique
+        number.
         EX: John Doe #1 and John Doe #2.
 
-        The pipeline will need to detect this and perform the insertions correctly, and
-        this column will help in doing that.
-    gender - The gender category that the lifter competed in. See the GenderChoices
-        subclass below for more information
+        The pipeline will need to detect this and perform the insertions
+        correctly, and this column will help in doing that.
+    gender - The gender category that the lifter competed in. See the
+        GenderChoices subclass below for more information
     """
 
     class GenderChoices(models.TextChoices):
@@ -59,8 +60,6 @@ class Athlete(models.Model):
 class Contest(models.Model):
     """
     Represents a Powerlifting Meet (Contest)
-
-    TODO: Fill in
     """
 
     id = models.BigAutoField(primary_key=True)
@@ -79,7 +78,7 @@ class Contest(models.Model):
 
 class ContestResult(models.Model):
     """
-    TODO: Fill in information
+    Represents a contest result
     """
 
     class EventChoices(models.TextChoices):
@@ -184,6 +183,9 @@ class ContestLocation(models.Model):
 
 
 class WeatherStation(models.Model):
+    """
+    Represents a weather station
+    """
     id = models.BigAutoField(primary_key=True)
     station_id = models.CharField(unique=True, blank=False, max_length=11)
     elevation = models.DecimalField(max_digits=6, decimal_places=1)

@@ -27,8 +27,30 @@ def clean_state(value):
     return "" if len(value) == 0 else value
 
 
-# Define the parsing function
 def parse_line(line):
+    """
+    This builds a dictionary of values based on a given line in the stations
+    file.
+
+    According to the weather station's documentation here:
+    https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt
+
+    The data is in the following format:
+        ------------------------------
+        Variable   Columns   Type
+        ------------------------------
+        ID            1-11   Character
+        LATITUDE     13-20   Real
+        LONGITUDE    22-30   Real
+        ELEVATION    32-37   Real
+        STATE        39-40   Character
+        NAME         42-71   Character
+        GSN FLAG     73-75   Character
+        HCN/CRN FLAG 77-79   Character
+        WMO ID       81-85   Character
+        ------------------------------
+
+    """
     cleaned_data = {
         "station_id": line[0:11].strip(),
         "elevation": float(line[31:37]),
@@ -44,10 +66,28 @@ def parse_line(line):
 
 
 def load_fact_station(file_path, table_name, **kwargs):
+    """
+    This loads data into the 'fact_weatherstation' table. This corresponds to
+    the 'fact.WeatherStation' model in the dashboard application.
+    """
+
     # Connect to the database and get a connection object
     engine = DBHelpers.get_engine()
 
     # Base statement for insert into `fact_weatherstation` table
+    """
+    This SQL statement populates the table. In other instances, the student
+    opted to use the pandas data frame 'to_sql' method, however, it did not
+    play nicely with the geo spatial fields without additional configuration
+    or libraries such as https://geopandas.org/en/stable/.
+
+    Rather than bring in another dependency, it seemed relevant to demonstrate
+    the ability to work with SQL directly.
+
+    Of particular interest in the following statement is the use of the
+    ST_PointFromText function, which inserts a Point field from a given
+    latitude and longitude.
+    """
     base_statement = text(
         f"""
         INSERT INTO {table_name} (

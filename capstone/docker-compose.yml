@@ -347,6 +347,7 @@ services:
         restart: true
     volumes:
       - ./dashboard:/app
+    restart: on-failure
 
 volumes:
   pgdata:
