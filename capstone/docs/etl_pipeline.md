@@ -32,25 +32,25 @@ However, to speed up development the student opted to split this unified DAG int
 - Fact DAG - for data acquisition and fact table population
 - Dimension DAG - for populating the dimension tables from the fact tables
 
-![The Airflow DAG Listing](img/airflow-dags.png)
+![The Airflow DAG Listing](/capstone/docs/img/airflow-dags.png)
 
 ### Capstone DAG
 
 The capstone dag incorporates all pipeline logic required by the application. The following illustration shows the airflow dashboard opened to the Capstone DAG demonstrating a successful run.
 
-![The Airflow DAG](img/airflow-capstone-dag.png)
+![The Airflow DAG](/capstone/docs/img/airflow-capstone-dag.png)
 
 ### Fact DAG
 
 The fact dag incorporates all pipeline logic required to acquire the data and populate the fact tables. The following illustration shows the airflow dashboard opened to the Fact DAG demonstrating a successful run.
 
-![The Airflow DAG](img/airflow-fact-dag.png)
+![The Airflow DAG](/capstone/docs/img/airflow-fact-dag.png)
 
 ### Dimension DAG
 
 The dimension dag incorporates all pipeline logic required to populate the dimension tables from the fact dag. The following illustration shows the airflow dashboard opened to the Dimension DAG demonstrating a successful run.
 
-![The Airflow DAG](img/airflow-dimension-dag.png)
+![The Airflow DAG](/capstone/docs/img/airflow-dimension-dag.png)
 
 ## Data Quality
 
@@ -64,28 +64,28 @@ Each of the tables was populated by the pipeline and made accessible to potentia
 
 ### Fact - Athlete
 
-![The Airflow DAG](img/fact-athlete-list.png)
+![The Airflow DAG](/capstone/docs/img/fact-athlete-list.png)
 
 ### Fact - Contest
 
-![The Airflow DAG](img/fact-contest-list.png)
+![The Airflow DAG](/capstone/docs/img/fact-contest-list.png)
 
 ### Fact - Location
 
-![The Airflow DAG](img/fact-location-list.png)
+![The Airflow DAG](/capstone/docs/img/fact-location-list.png)
 
 ### Fact - Result
 
-![The Airflow DAG](img/fact-result-list.png)
+![The Airflow DAG](/capstone/docs/img/fact-result-list.png)
 
 ### Fact - Station
 
-![The Airflow DAG](img/fact-station-list.png)
+![The Airflow DAG](/capstone/docs/img/fact-station-list.png)
 
 ### Dimension - Location
 
-![The Airflow DAG](img/dimension-locations.png)
+![The Airflow DAG](/capstone/docs/img/dimension-locations.png)
 
 ### Dimension - Contest
 
-![The Airflow DAG](img/dimension-contests.png)
+![The Airflow DAG](/capstone/docs/img/dimension-contests.png)

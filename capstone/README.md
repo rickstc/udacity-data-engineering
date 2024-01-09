@@ -24,13 +24,13 @@ The student kept the configuration and customization of this dashboard to a mini
 
 Athlete List Example:
 
-![A List of Athletes](/docs/img/fact-athlete-list.png)
+![A List of Athletes](/capstone/docs/img/fact-athlete-list.png)
 
 This API is paginated by default to improve the performance, and does allow for some filtering and reordering, which would provide decision makers with the ability to sort and filter for data that assists them in making decisions. The student, however, didn't need to leverage this functionality to complete the project.
 
 Athlete Filtering Example:
 
-![Filters for Athletes](/docs/img/athlete-list-filters.png)
+![Filters for Athletes](/capstone/docs/img/athlete-list-filters.png)
 
 ### A Note on Models
 

@@ -28,7 +28,7 @@ The data was first parsed into fact tables with a goal of normalizing the data f
 An advantage of storing the data in these fact tables is that the cleaned, normalized data could be exposed to data users and stakeholders via the API or dashboard.
 
 Example Contest Results:
-![Example Contest Results](img/fact-result-list.png)
+![Example Contest Results](/capstone/docs/img/fact-result-list.png)
 
 ### Powerlifting Data
 

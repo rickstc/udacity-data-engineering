@@ -35,10 +35,10 @@ The student opted to build a dashboard to expose all necessary data to end users
 Here is example of the report data coming back using postman:
 
 CSV Format
-![Report CSV](img/report-csv.png)
+![Report CSV](/capstone/docs/img/report-csv.png)
 
 JSON Format
-![Report JSON](img/report-json.png)
+![Report JSON](/capstone/docs/img/report-json.png)
 
 However, that same data can be obtained using the following SQL Query:
 
@@ -61,11 +61,11 @@ ON dc.location_id = dl.id;
 ```
 
 Here are the results of that query being run visually:
-![Report Query](img/report-query.png)
+![Report Query](/capstone/docs/img/report-query.png)
 
 Airflow was leveraged to build a data pipeline that could be monitored visually.
 
-![Airflow DAG](img/airflow-capstone-dag.png)
+![Airflow DAG](/capstone/docs/img/airflow-capstone-dag.png)
 
 ## Technologies and Tools
 
@@ -90,7 +90,7 @@ The following steps are taken by the ETL Pipeline:
 
 The goals of the project and the nature of the data do not make it imperative to always have the most updated data. Only a handful of powerlifting competitions take place each week, and as such it is unknown to the student how often the OpenPowerlifting Data Service is updated, though it appears that edits to the data are made by community members on a regular basis:
 
-![OPL Contributions](img/opl-meet-data.png)
+![OPL Contributions](/capstone/docs/img/opl-meet-data.png)
 
 Generally, the student would recommend updating the data as often as stakeholders believe it needs to be updated, within a schedule that makes sense given how quickly the underlying data sources are updated. In the context of this project, a monthly update seems appropriate.
 
