@@ -13,3 +13,4 @@ This repository is a place for me (Tim) to keep documents and source code pertai
 - [Project 3: Data Warehouse](03-dwh/submission/)
 - [Project 4: Data Lakes](04-dl/submission/)
 - [Project 5: Data Pipelines](05-dp/submission/)
+- [Project 6: Capstone Project](capstone/)
